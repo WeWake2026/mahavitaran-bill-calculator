@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahavitaran Smart Electricity Bill Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Modern High-End Light Theme */
+  --bg-gradient: radial-gradient(circle at 10% 10%, #f0f4f9 0%, #e2e8f0 100%);
+  --card-bg: rgba(255, 255, 255, 0.94);
+  --card-blur: blur(14px);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #cbd5e1;
+  --header-grad: linear-gradient(135deg, #09203f 0%, #1e3c72 50%, #2a5298 100%);
+  --kpi-bg: #f8fafc;
+  --kpi-border: #e2e8f0;
+  --primary-accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.22);
+  --table-stripe: #f8fafc;
+  --badge-bg: rgba(37, 99, 235, 0.1);
+  --badge-text: #1d4ed8;
+  --shadow-card: 0 12px 30px -5px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] {
+  /* Ultra Sleek Cyber Dark Theme */
+  --bg-gradient: radial-gradient(circle at 10% 10%, #080d1a 0%, #020611 100%);
+  --card-bg: rgba(18, 26, 43, 0.92);
+  --card-blur: blur(16px);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #243452;
+  --header-grad: linear-gradient(135deg, #0b1329 0%, #172554 50%, #1e3a8a 100%);
+  --kpi-bg: #121c32;
+  --kpi-border: #223253;
+  --primary-accent: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.3);
+  --table-stripe: #0f182c;
+  --badge-bg: rgba(59, 130, 246, 0.2);
+  --badge-text: #93c5fd;
+  --shadow-card: 0 14px 35px -5px rgba(0, 0, 0, 0.6);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: all 0.35s ease;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 25px auto;
+  padding: 0 18px;
+}
+
+/* Glassmorphism Header */
+.brand-header {
+  background: var(--header-grad);
+  color: #fff;
+  border-radius: 20px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 15px 35px -5px rgba(13, 59, 102, 0.38);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.brand-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.brand-title h1 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-title p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #dbeafe;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-pill {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  outline: none;
+}
+.control-pill:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.control-pill select {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+}
+.control-pill select option {
+  background: #1e293b;
+  color: #fff;
+}
+
+.btn-top-reset {
+  background: #dc2626 !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+.btn-top-reset:hover {
+  background: #b91c1c !important;
+  transform: translateY(-2px);
+}
+
+/* Card Styling */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: var(--card-blur);
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 22px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+h2 {
+  font-size: 17.5px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+.badge-tag {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  font-size: 11.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* Grid & Inputs */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+input, select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--kpi-bg);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  outline: none;
+}
+input:focus, select:focus {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3.5px var(--accent-glow);
+  background: var(--card-bg);
+}
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  flex: 2;
+  min-width: 180px;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+}
+.btn-warning {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+}
+.btn-warning:hover { transform: translateY(-2px); }
+.btn-secondary {
+  background: var(--kpi-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  flex: 1;
+}
+.btn-secondary:hover {
+  background: var(--border-color);
+  transform: translateY(-1px);
+}
+.btn-save {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  width: 100%;
+}
+
+/* KPI Summary */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 13px;
+  margin-top: 14px;
+}
+.result-box {
+  background: var(--kpi-bg);
+  border: 1px solid var(--kpi-border);
+  padding: 15px;
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.result-box:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+.result-box span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  letter-spacing: 0.4px;
+}
+.result-box strong {
+  font-size: 17.5px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+/* Final Cards */
+.final-card {
+  padding: 20px 24px;
+  border-radius: 14px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.final-current {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+}
+.final-total {
+  background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+}
+.final-card .title { font-size: 14.5px; font-weight: 800; }
+.final-card .desc { font-size: 12px; opacity: 0.9; margin-top: 3px; display: block; }
+.final-card .amt { font-size: 27px; font-weight: 800; }
+
+/* Table Styles */
+.table-responsive { width: 100%; overflow-x: auto; margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 11px 13px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+th { background: var(--table-stripe); color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 11.5px; text-align: left; }
+td:last-child, th:last-child { text-align: right; }
+.subtotal-row { font-weight: 800; background: var(--kpi-bg); }
+
+.highlight-row { background: rgba(16, 185, 129, 0.08); }
+.warning-row { background: rgba(239, 68, 68, 0.08); }
+
+.edit-rates-panel {
+  display: none;
+  background: var(--kpi-bg);
+  border: 1.5px dashed var(--primary-accent);
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 18px;
+}
+.formula-box {
+  background: var(--kpi-bg);
+  border-left: 4px solid var(--primary-accent);
+  padding: 16px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.85;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+.hidden { display: none !important; }
+
+.solar-highlight-yellow {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: var(--text-main) !important;
+  font-weight: 700;
+}
+.solar-highlight-green {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: var(--text-main) !important;
+  font-weight: 700;
+}
+.solar-text-red {
+  color: #ef4444 !important;
+}
+.solar-text-green {
+  color: #10b981 !important;
+}
+
+/* Smart Results Reveal Animation */
+.results-container {
+  display: none;
+}
+.results-container.show-results {
+  display: block;
+  animation: smartReveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes smartReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Toast Notification */
+.toast-notice {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0f172a;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  z-index: 9999;
+  display: none;
+  animation: toastFade 0.3s ease;
+}
+@keyframes toastFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media(max-width: 640px) {
+  .final-card { flex-direction: column; text-align: center; gap: 8px; }
+  .final-card .amt { font-size: 23px; }
+  .brand-header { padding: 18px; }
+  .brand-title h1 { font-size: 19px; }
+}
+
+/* High Fidelity Color Printing */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 12px !important;
+  }
+  .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+  .actions, button, .header-controls, .edit-rates-panel, .toast-notice {
+    display: none !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 16px !important;
+    padding: 18px !important;
+  }
+  .brand-header {
+    background: linear-gradient(135deg, #09203f 0%, #1e3c72 50%, #2a5298 100%) !important;
+    color: #ffffff !important;
+    padding: 18px 22px !important;
+    margin-bottom: 16px !important;
+  }
+  .final-card.final-current {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    break-inside: avoid !important;
+  }
+  .final-card.final-total {
+    background: linear-gradient(135deg, #065f46 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    break-inside: avoid !important;
+  }
+  .results-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+  .result-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 10px !important;
+  }
+  table {
+    width: 100% !important;
+  }
+  th, td {
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="brand-header">
+    <div class="brand-title">
+      <h1 id="lblAppTitle">⚡ महावितरण बिल कॅल्क्युलेटर</h1>
+      <p id="lblAppSub">अचूक ऊर्जा बिलिंग प्रणाली (निवासी आणि औद्योगिक - आर्थिक वर्ष २०२६-२७)</p>
+    </div>
+    
+    <div class="header-controls">
+      <!-- Language Selector -->
+      <div class="control-pill">
+        🌐 <select id="langSelector" onchange="changeLanguage(this.value)">
+          <option value="mr" selected>मराठी (Marathi)</option>
+          <option value="en">English</option>
+          <option value="hi">हिंदी (Hindi)</option>
+        </select>
+      </div>
+
+      <!-- Top Reset Button named strictly Reset -->
+      <button class="control-pill btn-top-reset" onclick="resetToZero()" title="Reset all figures to 0">
+        🔄 Reset
+      </button>
+
+      <!-- Light / Dark Mode Toggle Button -->
+      <button class="control-pill" onclick="toggleTheme()" id="themeBtn">
+        🌙 Dark Mode
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+      <span id="lblConsumerParams">ग्राहक तपशील आणि वापर</span>
+      <span class="badge-tag" id="lblSmartInputs">स्मार्ट इनपुट</span>
+    </h2>
+
+    <div class="grid">
+      <div class="input-group">
+        <label for="category" id="lblCategory">दर श्रेणी (Tariff Category)</label>
+        <select id="category" onchange="onCategoryChange()">
+          <option value="" disabled selected id="optCatSelect">-- वर्गवारी निवडा (Select Tariff Category) --</option>
+          <option value="res" id="optRes">LT I(B) - निवासी (Residential)</option>
+          <option value="bpl" id="optBpl">LT I(A) - दारिद्र्यरेषेखालील (Residential BPL)</option>
+          <option value="ind" id="optInd">LT V - औद्योगिक (Industrial)</option>
+          <option value="commA" id="optCommA">LT II(A) - वाणिज्यिक (Commercial 0-20 kW)</option>
+          <option value="commB" id="optCommB">LT II(B) - वाणिज्यिक (Commercial >20-50 kW)</option>
+          <option value="commC" id="optCommC">LT II(C) - वाणिज्यिक (Commercial >50 kW)</option>
+          <option value="waterA" id="optWaterA">LT III(A) - पाणीपुरवठा (Water Works <=20 kW)</option>
+          <option value="waterB" id="optWaterB">LT III(B) - पाणीपुरवठा (Water Works 20-40 kW)</option>
+          <option value="waterC" id="optWaterC">LT III(C) - पाणीपुरवठा (Water Works >40 kW)</option>
+          <option value="govA" id="optGovA">LT VII(A) - शासकीय सेवा (Govt Services <=20 kW)</option>
+          <option value="govB" id="optGovB">LT VII(A) - शासकीय सेवा (Govt Services 20-50 kW)</option>
+          <option value="govC" id="optGovC">LT VII(A) - शासकीय सेवा (Govt Services >50 kW)</option>
+          <option value="ev" id="optEv">LT VIII - ईव्ही चार्जिंग स्टेशन (EV Charging)</option>
+        </select>
+      </div>
+
+      <!-- Industrial Fields -->
+      <div class="input-group" id="kvahField">
+        <label for="kvahUnits" id="lblKvahUnits">kVAh वापर युनिट्स</label>
+        <input type="number" id="kvahUnits" min="0" step="any" value="1000">
+        <div class="hint" id="hintKvah">Energy, Wheeling व FAC आकारासाठी</div>
+      </div>
+
+      <div class="input-group" id="kwhField">
+        <label for="kwhUnits" id="lblKwhUnits">kWh वापर युनिट्स</label>
+        <input type="number" id="kwhUnits" min="0" step="any" value="950">
+        <div class="hint" id="hintKwh">Tax on Sale (@ 28.94 पैसे/युनिट) साठी</div>
+      </div>
+
+      <!-- Residential Units Field -->
+      <div class="input-group" id="generalUnitsField">
+        <label for="units" id="lblUnits">वापरलेले युनिट्स (Consumed Units)</label>
+        <input type="number" id="units" min="0" step="any" value="188">
+        <div class="hint" id="hintUnits">एकूण वापरलेली वीज (युनिट्समध्ये)</div>
+      </div>
+
+      <div class="input-group">
+        <label for="days" id="lblDays">बिलिंग दिवस</label>
+        <input type="number" id="days" min="1" step="1" value="31" oninput="onDaysInput(this.value)">
+        <div class="hint" id="hintDays">दिवस ÷ ३० (उदा. ३१/३० = १.०३)</div>
+      </div>
+
+      <!-- Advanced Direct Ratio Input Option -->
+      <div class="input-group" id="ratioField">
+        <label for="billingRatio" id="lblBillingRatio">बिलिंग रेशो (Billing Ratio)</label>
+        <input type="number" id="billingRatio" step="0.01" min="0.1" value="1.03" oninput="onRatioInput(this.value)">
+        <div class="hint" id="hintRatio">थेट रेशो प्रविष्ट करा (उदा. 1.03)</div>
+      </div>
+
+      <div class="input-group" id="demandField">
+        <label for="billingDemand" id="lblDemand">मागणी आकार (Billing Demand)</label>
+        <input type="number" id="billingDemand" min="0" step="any" value="25">
+        <div class="hint" id="hintDemand">Industrial: @ Demand Rate × Billing Demand</div>
+      </div>
+
+      <div class="input-group" id="phaseField">
+        <label for="phaseType" id="lblPhase">फेज प्रकार</label>
+        <select id="phaseType">
+          <option value="" disabled selected id="optPhaseSelect">-- फेज निवडा --</option>
+          <option value="single" id="optSingle">एक फेज (₹१३०/महिना)</option>
+          <option value="three" id="optThree">Three Phase (₹४३५/महिना)</option>
+        </select>
+      </div>
+
+      <div class="input-group" id="areaField">
+        <label for="area" id="lblArea">परिसर</label>
+        <select id="area">
+          <option value="" disabled selected id="optAreaSelect">-- परिसर निवडा --</option>
+          <option value="other" id="optAreaOther">इतर क्षेत्र (Other Area)</option>
+          <option value="municipal" id="optAreaMuni">महानगरपालिका क्षेत्र (+₹१०)</option>
+        </select>
+      </div>
+
+      <div class="input-group" id="todField">
+        <label for="todTariff" id="lblTod">TOD Tariff EC (₹)</label>
+        <input type="number" id="todTariff" step="any" value="0">
+        <div class="hint" id="hintTod">बिलामधील (+ किंवा −) रक्कम</div>
+      </div>
+
+      <div class="input-group" id="debitAdjField">
+        <label for="debitAdjustment" id="lblDebit">डेबिट बिल ऍडजस्टमेंट (₹)</label>
+        <input type="number" id="debitAdjustment" step="any" value="0">
+        <div class="hint" id="hintDebit">बिलातील डेबिट ऍडजस्टमेंट</div>
+      </div>
+
+      <div class="input-group">
+        <label for="arrears" id="lblArrears">मागील थकबाकी (Previous Arrears)</label>
+        <input type="number" id="arrears" step="any" value="-8.94">
+        <div class="hint" id="hintArrears">थकबाकी (+) किंवा आगाऊ जमा रक्कम (−)</div>
+      </div>
+
+      <div class="input-group">
+        <label for="otherAdjustment" id="lblOther">इतर समायोजन (Other Adjustment)</label>
+        <input type="number" id="otherAdjustment" step="any" value="0">
+      </div>
+
+      <!-- Solar Net Metering Selection -->
+      <div class="input-group">
+        <label for="isSolar" id="lblIsSolar">सोलर नेट मीटर?</label>
+        <select id="isSolar" onchange="onSolarToggle()">
+          <option value="no" selected id="optSolarNo">नाही (Regular)</option>
+          <option value="yes" id="optSolarYes">होय (Solar Net Meter)</option>
+        </select>
+        <div class="hint" id="hintSolar">सोलर नेट मीटरिंग समायोजन</div>
+      </div>
+    </div><!-- End main grid -->
+
+    <!-- Solar Specific Dynamic Grid (Hidden by default) -->
+    <div id="solarSection" class="hidden" style="margin-top:18px;padding-top:16px;border-top:1.5px dashed var(--primary-accent);">
+      <h3 style="font-size:15px;font-weight:800;color:var(--primary-accent);margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+        ☀️ <span id="lblSolarParams">सोलर नेट मीटर तपशील</span>
+        <span class="badge-tag">LT / HT सोलर</span>
+      </h3>
+      <div class="grid">
+        <div class="input-group">
+          <label for="solarCategory" id="lblSolarCategory">सोलर कनेक्शन स्तर</label>
+          <select id="solarCategory" onchange="onInputUpdate()">
+            <option value="LT" selected id="optSolarLT">LT सोलर (बँकिंग १२%, ग्रिड सपोर्ट ₹१.९६)</option>
+            <option value="HT" id="optSolarHT">HT सोलर (बँकिंग ७.५%, ग्रिड सपोर्ट ₹१.४५)</option>
+          </select>
+          <div class="hint" id="hintSolarCat">LT: १२% | HT: 7.5% बँकिंग</div>
+        </div>
+
+        <div class="input-group">
+          <label for="solarImportUnits" id="lblSolarImport">उपभोग (आयात) युनिट्स</label>
+          <input type="number" id="solarImportUnits" min="0" step="any" value="2000">
+          <div class="hint" id="hintSolarImport">महावितरणकडून घेतलेली वीज (आयात)</div>
+        </div>
+
+        <div class="input-group">
+          <label for="solarExportUnits" id="lblSolarExport">सौर निर्यात युनिट्स</label>
+          <input type="number" id="solarExportUnits" min="0" step="any" value="800">
+          <div class="hint" id="hintSolarExport">ग्रीडकडे पाठवलेली सौर वीज (निर्यात)</div>
+        </div>
+
+        <div class="input-group">
+          <label for="solarGenUnits" id="lblSolarGen">सौर व्युत्पन्न युनिट्स</label>
+          <input type="number" id="solarGenUnits" min="0" step="any" value="4000">
+          <div class="hint" id="hintSolarGen">एकूण सौर निर्मिती</div>
+        </div>
+
+        <div class="input-group">
+          <label for="solarSanctionedLoad" id="lblSolarLoad">मंजूर लोड (kW)</label>
+          <input type="number" id="solarSanctionedLoad" min="0" step="any" value="15">
+          <div class="hint" id="hintSolarLoad">> 10 kW असल्यास ग्रिड समर्थन लागू</div>
+        </div>
+
+        <div class="input-group">
+          <label for="solarDayUnits" id="lblSolarDay">दिवसाचा वापर युनिट्स (9 AM - 6 PM)</label>
+          <input type="number" id="solarDayUnits" min="0" step="any" value="1000">
+          <div class="hint" id="hintSolarDay">सकाळी ९ ते संध्याकाळी ६ वापर (@ ₹0.85 सवलत)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="onCalculateBillClick()" id="btnCalc">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 7h6m-6 4h6m-6 4h6M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        <span id="txtBtnCalc">बिलाची गणना करा</span>
+      </button>
+      <button class="btn-warning" onclick="toggleEditRatesPanel()" id="btnEditRates">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+        <span id="txtBtnEditRates">दर आणि FAC संपादित करा</span>
+      </button>
+      <button class="btn-secondary" onclick="copyBillSummary()" id="btnCopySummary">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+        <span id="lblBtnCopy">📋 बिल कॉपी करा</span>
+      </button>
+      <button class="btn-secondary" onclick="window.print()" id="btnPrint">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-4 0v4H8v-4m2-4h4"></path></svg>
+        <span id="txtBtnPrint">छापा (Print)</span>
+      </button>
+    </div>
+
+    <!-- Edit Rates & FAC Panel -->
+    <div id="editRatesPanel" class="edit-rates-panel">
+      <h2>
+        ⚙️ <span id="lblEditRatesHeader">टॅरिफ दर आणि मासिक FAC दर संपादित करा</span>
+        <span class="badge-tag" id="lblDynamicTariff">डायनॅमिक टॅरिफ संपादक</span>
+      </h2>
+      <p class="hint" style="margin-bottom:15px" id="lblEditRatesDesc">दर किंवा चालू महिन्याचे FAC दर बदलल्यास येथे बदलून थेट सेव्ह करा:</p>
+      <div class="grid" id="ratesInputGrid"></div>
+      <div style="margin-top:16px">
+        <button class="btn-save" onclick="applyCustomRates()" id="btnSaveRates">दर सेव्ह करा आणि रीकॅल्क्युलेट करा</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section Hidden by Default -->
+  <div id="resultsWrapper" class="results-container">
+  <!-- Summary Card -->
+  <div class="card">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+      <span id="lblSummaryTitle">बिल गणना सारांश</span>
+    </h2>
+    <div class="results-grid">
+      <div class="result-box" id="kpiBoxSolar" style="display:none;background:rgba(234, 179, 8, 0.1);border-color:#eab308;"><span>☀️ सौर समायोजन</span><strong id="kpiSolar" style="color:#b45309;">₹0.00</strong></div>
+
+      <div class="result-box"><span id="kpiLblFixed">मागणी / निश्चित</span><strong id="kpiFixed">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblWheel">व्हीलिंग चार्ज</span><strong id="kpiWheel">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblEnergy">ऊर्जा शुल्क</span><strong id="kpiEnergy">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblTod">TOD दर EC</span><strong id="kpiTod">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblFac">F.A.C. चार्जेस</span><strong id="kpiFac">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblDuty">विद्युत शुल्क</span><strong id="kpiDuty">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblTax">विक्रीवर कर</span><strong id="kpiTax">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblOther">डेबिट / इतर Adj.</span><strong id="kpiOther">₹0.00</strong></div>
+      <div class="result-box"><span id="kpiLblArrears">मागील थकबाकी (Previous Arrears)</span><strong id="kpiArrears">₹0.00</strong></div>
+    </div>
+
+    <!-- Highlight Cards -->
+    <div class="final-card final-current">
+      <div>
+        <div class="title" id="lblFinalCurrentTitle">सध्याचे बिल (CURRENT BILL AMOUNT)</div>
+        <span class="desc" id="dispRoundNote">थकबाकी वगळून (चालू महिन्याचे प्रत्यक्ष बिल)</span>
+      </div>
+      <div class="amt" id="dispCurrentBill">₹0.00</div>
+    </div>
+
+    <div class="final-card final-total">
+      <div>
+        <div class="title" id="lblFinalTotalTitle">एकूण देय रक्कम (TOTAL PAYABLE BILL)</div>
+        <span class="desc" id="dispArrearsNote">चालू बिल + थकबाकी (Nearest ₹10 Round Figure)</span>
+      </div>
+      <div class="amt" id="dispTotalBill">₹0.00</div>
+    </div>
+  </div>
+
+  <!-- Solar Calculation Card -->
+  <div class="card" id="solarCard" style="display:none;border-left:5px solid #eab308;">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <span id="lblSolarCardTitle">सौर ऊर्जा नेट मीटरिंग समायोजन (Solar Net Metering Settlement)</span>
+    </h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th id="thSolarParam">तपशील (Parameter)</th>
+            <th id="thSolarCalc">युनिट्स / सूत्र (Calculation)</th>
+            <th id="thSolarVal">मूल्य / परिणाम (Value)</th>
+          </tr>
+        </thead>
+        <tbody id="solarDetailsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Slab Breakdown for Residential -->
+  <div class="card" id="slabCard">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+      <span id="lblSlabTableTitle">निवासी ऊर्जा आणि FAC स्लॅब तपशील</span>
+    </h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th id="thSlab">स्लॅब</th>
+            <th id="thUnits">वापरलेली युनिट्स</th>
+            <th id="thEnergyRate">ऊर्जा दर</th>
+            <th id="thEnergyAmt">ऊर्जा रक्कम</th>
+            <th id="thFacRate">FAC दर</th>
+            <th id="thFacAmt">FAC रक्कम</th>
+          </tr>
+        </thead>
+        <tbody id="slabDetailsBody"></tbody>
+        <tfoot>
+          <tr class="subtotal-row">
+            <td colspan="3" id="tdTotalCharges">एकूण शुल्क</td>
+            <td id="tableTotalEnergy">₹0.00</td>
+            <td>-</td>
+            <td id="tableTotalFac">₹0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detailed Step Breakdown -->
+  <div class="card">
+    <h2>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+      <span id="lblDetailedBreakdown">तपशीलवार वर्गीकरण</span>
+    </h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th id="thDesc">वर्णन</th>
+            <th id="thFormula">गणना सूत्र / पायऱ्या</th>
+            <th id="thAmt">रक्कम (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="detailedBreakdownBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Discounts and Surcharges Section -->
+    <h3 style="margin-top:22px;font-size:15px;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span id="lblDiscountsSurcharges">सवलती आणि अधिभार (माहितीसाठी)</span>
+    </h3>
+    <div class="table-responsive">
+      <table>
+        <tr class="highlight-row">
+          <td><strong id="lblPromptDiscount">वेळेवर भरणा सवलत (१%)</strong></td>
+          <td id="descPromptDiscount">नियत तारखेपूर्वी भरणा केल्यास १% सवलत (डिमांड + ऊर्जा + व्हीलिंग + FAC + TOD शुल्कावर)</td>
+          <td id="dispPromptDiscount" style="color:#10b981;font-weight:800">− ₹0.00</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong id="lblDigitalDiscount">डिजिटल पेमेंट सवलत (०.२५%)</strong></td>
+          <td id="descDigitalDiscount">डिजिटल पेमेंट केल्यास ०.२५% सवलत (जास्तीत जास्त ₹५०० पर्यंत)</td>
+          <td id="dispDigitalDiscount" style="color:#10b981;font-weight:800">− ₹0.00</td>
+        </tr>
+        <tr class="warning-row">
+          <td><strong id="lblDelaySurcharge">विलंब शुल्क (१.२५%)</strong></td>
+          <td id="descDelaySurcharge">नियत तारखेनंतर भरणा केल्यास १.२५% अधिभार</td>
+          <td id="dispDelaySurcharge" style="color:#ef4444;font-weight:800">+ ₹0.00</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Uniform Detailed Formula Breakdown for ALL Tariffs -->
+    <div class="formula-box" id="formulaBox"></div>
+  </div>
+  </div><!-- End resultsWrapper -->
+</div>
+
+<!-- Toast Notice for Copy / Action feedback -->
+<div id="toastBox" class="toast-notice"></div>
+
+<script>
+"use strict";
+
+const i18n = {
+  mr: {
+    appTitle: "⚡ महावितरण बिल कॅल्क्युलेटर",
+    appSub: "अचूक ऊर्जा बिलिंग प्रणाली (निवासी आणि औद्योगिक - आर्थिक वर्ष २०२६-२७)",
+    consumerParams: "ग्राहक तपशील आणि वापर",
+    smartInputs: "स्मार्ट इनपुट",
+    category: "दर श्रेणी (Tariff Category)",
+    optCatSelect: "-- वर्गवारी निवडा (Select Tariff Category) --",
+    optRes: "LT I(B) - निवासी (Residential)",
+    optBpl: "LT I(A) - दारिद्र्यरेषेखालील (Residential BPL)",
+    optInd: "LT V - औद्योगिक (Industrial)",
+    optCommA: "LT II(A) - वाणिज्यिक (Commercial 0-20 kW)",
+    optCommB: "LT II(B) - वाणिज्यिक (Commercial >20-50 kW)",
+    optCommC: "LT II(C) - वाणिज्यिक (Commercial >50 kW)",
+    optWaterA: "LT III(A) - पाणीपुरवठा (Water Works <=20 kW)",
+    optWaterB: "LT III(B) - पाणीपुरवठा (Water Works 20-40 kW)",
+    optWaterC: "LT III(C) - पाणीपुरवठा (Water Works >40 kW)",
+    optGovA: "LT VII(A) - शासकीय सेवा (Govt Services <=20 kW)",
+    optGovB: "LT VII(A) - शासकीय सेवा (Govt Services 20-50 kW)",
+    optGovC: "LT VII(A) - शासकीय सेवा (Govt Services >50 kW)",
+    optEv: "LT VIII - ईव्ही चार्जिंग स्टेशन (EV Charging)",
+    kvahUnits: "kVAh वापर युनिट्स",
+    hintKvah: "Energy, Wheeling व FAC आकारासाठी",
+    kwhUnits: "kWh वापर युनिट्स",
+    hintKwh: "Tax on Sale (@ 28.94 पैसे/युनिट) साठी",
+    units: "वापरलेले युनिट्स (Consumed Units)",
+    hintUnits: "एकूण वापरलेली वीज (युनिट्समध्ये)",
+    days: "बिलिंग दिवस",
+    hintDays: "दिवस ÷ ३० (उदा. ३१/३० = १.०३)",
+    billingRatio: "बिलिंग रेशो (Billing Ratio)",
+    hintRatio: "थेट रेशो प्रविष्ट करा (उदा. 1.03)",
+    demand: "मागणी आकार (Billing Demand)",
+    hintDemand: "Industrial: @ Demand Rate × Billing Demand",
+    phase: "फेज प्रकार",
+    optPhaseSelect: "-- फेज निवडा --",
+    singlePhase: "एक फेज (₹१३०/महिना)",
+    threePhase: "Three Phase (₹४३५/महिना)",
+    area: "परिसर",
+    optAreaSelect: "-- परिसर निवडा --",
+    areaOther: "इतर क्षेत्र (Other Area)",
+    areaMuni: "महानगरपालिका क्षेत्र (+₹१०)",
+    tod: "TOD Tariff EC (₹)",
+    hintTod: "बिलामधील (+ किंवा −) रक्कम",
+    debit: "डेबिट बिल ऍडजस्टमेंट (₹)",
+    hintDebit: "बिलातील डेबिट ऍडजस्टमेंट",
+    arrears: "मागील थकबाकी (Previous Arrears)",
+    hintArrears: "थकबाकी (+) किंवा आगाऊ जमा रक्कम (−)",
+    other: "इतर समायोजन (Other Adjustment)",
+    lblIsSolar: "सोलर नेट मीटर?",
+    optSolarNo: "नाही (Regular)",
+    optSolarYes: "होय (Solar Net Meter)",
+    hintSolar: "सोलर नेट मीटरिंग समायोजन",
+    lblSolarParams: "सोलर नेट मीटर तपशील",
+    lblSolarCategory: "सोलर कनेक्शन स्तर",
+    optSolarLT: "LT सोलर (बँकिंग १२%, ग्रिड सपोर्ट ₹१.९६)",
+    optSolarHT: "HT सोलर (बँकिंग ७.५%, ग्रिड सपोर्ट ₹१.४५)",
+    hintSolarCat: "LT: १२% | HT: 7.5% बँकिंग",
+    lblSolarImport: "उपभोग (आयात) युनिट्स",
+    hintSolarImport: "महावितरणकडून घेतलेली वीज (आयात)",
+    lblSolarExport: "सौर निर्यात युनिट्स",
+    hintSolarExport: "ग्रीडकडे पाठवलेली सौर वीज (निर्यात)",
+    lblSolarGen: "सौर व्युत्पन्न युनिट्स",
+    hintSolarGen: "एकूण सौर निर्मिती",
+    lblSolarLoad: "मंजूर लोड (kW)",
+    hintSolarLoad: "> 10 kW असल्यास ग्रिड समर्थन लागू",
+    lblSolarDay: "दिवसाचा वापर युनिट्स (9 AM - 6 PM)",
+    hintSolarDay: "सकाळी ९ ते संध्याकाळी ६ वापर (@ ₹0.85 सवलत)",
+    btnCalc: "बिलाची गणना करा",
+    btnEditRates: "दर आणि FAC संपादित करा",
+    btnCopySummary: "📋 बिल कॉपी करा",
+    btnPrint: "छापा (Print)",
+    editRatesHeader: "टॅरिफ दर आणि मासिक FAC दर संपादित करा",
+    dynamicTariff: "डायनॅमिक टॅरिफ संपादक",
+    editRatesDesc: "दर किंवा चालू महिन्याचे FAC दर बदलल्यास येथे बदलून थेट सेव्ह करा:",
+    btnSaveRates: "दर सेव्ह करा आणि रीकॅल्क्युलेट करा",
+    summaryTitle: "बिल गणना सारांश",
+    kpiSolar: "☀️ सौर समायोजन",
+    kpiFixed: "मागणी / निश्चित",
+    kpiWheel: "व्हीलिंग चार्ज",
+    kpiEnergy: "ऊर्जा शुल्क",
+    kpiTod: "TOD दर EC",
+    kpiFac: "F.A.C. चार्जेस",
+    kpiDuty: "विद्युत शुल्क",
+    kpiTax: "विक्रीवर कर",
+    kpiOther: "डेबिट / इतर Adj.",
+    kpiArrears: "मागील थकबाकी (Previous Arrears)",
+    finalCurrentTitle: "सध्याचे बिल (CURRENT BILL AMOUNT)",
+    finalTotalTitle: "एकूण देय रक्कम (TOTAL PAYABLE BILL)",
+    dispRoundNote: "थकबाकी वगळून (चालू महिन्याचे प्रत्यक्ष बिल)",
+    dispArrearsNote: "चालू बिल + थकबाकी (Nearest ₹10 Round Figure)",
+    lblSolarCardTitle: "सौर ऊर्जा नेट मीटरिंग समायोजन (Solar Net Metering Settlement)",
+    thSolarParam: "तपशील (Parameter)",
+    thSolarCalc: "युनिट्स / सूत्र (Calculation)",
+    thSolarVal: "मूल्य / परिणाम (Value)",
+    slabTableTitle: "निवासी ऊर्जा आणि FAC स्लॅब तपशील",
+    thSlab: "स्लॅब",
+    thUnits: "वापरलेली युनिट्स",
+    thEnergyRate: "ऊर्जा दर",
+    thEnergyAmt: "ऊर्जा रक्कम",
+    thFacRate: "FAC दर",
+    thFacAmt: "FAC रक्कम",
+    tdTotalCharges: "एकूण शुल्क",
+    detailedBreakdown: "तपशीलवार वर्गीकरण",
+    thDesc: "वर्णन",
+    thFormula: "गणना सूत्र / पायऱ्या",
+    thAmt: "रक्कम (₹)",
+    discountsSurcharges: "सवलती आणि अधिभार (माहितीसाठी)",
+    lblPromptDiscount: "वेळेवर भरणा सवलत (१%)",
+    descPromptDiscount: "नियत तारखेपूर्वी भरणा केल्यास १% सवलत (डिमांड + ऊर्जा + व्हीलिंग + FAC + TOD शुल्कावर)",
+    lblDigitalDiscount: "डिजिटल पेमेंट सवलत (०.२५%)",
+    descDigitalDiscount: "डिजिटल पेमेंट केल्यास ०.२५% सवलत (जास्तीत जास्त ₹५०० पर्यंत)",
+    lblDelaySurcharge: "विलंब शुल्क (१.२५%)",
+    descDelaySurcharge: "नियत तारखेनंतर भरणा केल्यास १.२५% अधिभार",
+    rowDemand: "1. मागणी / निश्चित शुल्क (Demand / Fixed Charges)",
+    rowWheel: "2. व्हीलिंग शुल्क (Wheeling Charges)",
+    rowEnergy: "3. ऊर्जा शुल्क (Energy Charges)",
+    rowTod: "4. TOD दर EC",
+    rowFacInd: "5. एफ.ए.सी. (F.A.C.) (इंधन समायोजन शुल्क - FAC)",
+    rowFacGen: "4. एफ.ए.सी. (F.A.C.) (इंधन समायोजन शुल्क - FAC)",
+    rowSolarRebate: "सोलर डे रिबेट (सकाळी ९ ते संध्याकाळी ६)",
+    rowDutyBase: "वीज शुल्काचा आधार (Electricity Duty Base)",
+    rowDutyInd: "6. वीज शुल्क",
+    rowDutyGen: "5. वीज शुल्क",
+    rowTaxInd: "7. विक्रीवरील कर (Tax on Sale)",
+    rowTaxGen: "6. विक्रीवरील कर (Tax on Sale)",
+    rowGridSupport: "सोलर ग्रिड सपोर्ट चार्जेस",
+    rowDebit: "8. डेबिट बिल ऍडजस्टमेंट",
+    rowOther: "इतर समायोजन (Other Adjustment)",
+    rowCurrent: "चालू बिल रक्कम",
+    rowCurrentDesc: "चालू महिन्यातील सर्व शुल्कांची बेरीज (थकीत रक्कम वगळून)",
+    rowArrears: "मागील थकबाकी/जमा रक्कम",
+    rowArrearsDue: "मागील बाकी (Due)",
+    rowArrearsCredit: "अ‍ॅडव्हान्स क्रेडिट",
+    rowTotalPayable: "एकूण देय बिल",
+    alertSelectCat: "कृपया आधी दर श्रेणी (Tariff Category) निवडा!",
+    alertSelectPhase: "कृपया फेज प्रकार (Phase) निवडा!",
+    alertSelectArea: "कृपया परिसर (Area) निवडा!"
+  },
+  en: {
+    appTitle: "⚡ Mahavitaran Bill Calculator",
+    appSub: "Precision Energy Billing System (Residential & Industrial FY 2026–27)",
+    consumerParams: "Consumer Parameters & Usage",
+    smartInputs: "Smart Inputs",
+    category: "Tariff Category",
+    optCatSelect: "-- Select Tariff Category --",
+    optRes: "LT I(B) - Residential",
+    optBpl: "LT I(A) - Residential BPL",
+    optInd: "LT V - Industrial",
+    optCommA: "LT II(A) - Commercial (0-20 kW)",
+    optCommB: "LT II(B) - Commercial (>20-50 kW)",
+    optCommC: "LT II(C) - Commercial (>50 kW)",
+    optWaterA: "LT III(A) - Water Works (<=20 kW)",
+    optWaterB: "LT III(B) - Water Works (20-40 kW)",
+    optWaterC: "LT III(C) - Water Works (>40 kW)",
+    optGovA: "LT VII(A) - Govt Services (<=20 kW)",
+    optGovB: "LT VII(A) - Govt Services (20-50 kW)",
+    optGovC: "LT VII(A) - Govt Services (>50 kW)",
+    optEv: "LT VIII - EV Charging Station",
+    kvahUnits: "kVAh Consumption Units",
+    hintKvah: "For Energy, Wheeling & FAC charges",
+    kwhUnits: "kWh Consumption Units",
+    hintKwh: "For Tax on Sale (@ 28.94 ps/unit)",
+    units: "Consumed Units",
+    hintUnits: "Total consumed electricity units",
+    days: "Billing Days",
+    hintDays: "Days ÷ 30 (e.g. 31/30 = 1.03)",
+    billingRatio: "Billing Ratio",
+    hintRatio: "Enter ratio directly (e.g. 1.03)",
+    demand: "Billing Demand",
+    hintDemand: "Industrial: @ Demand Rate × Billing Demand",
+    phase: "Residential Phase",
+    optPhaseSelect: "-- Select Phase --",
+    singlePhase: "One Phase (₹130/month)",
+    threePhase: "Three Phase (₹435/month)",
+    area: "Residential Area",
+    optAreaSelect: "-- Select Area --",
+    areaOther: "Other Area",
+    areaMuni: "Municipal Corporation Area (+₹10)",
+    tod: "TOD Tariff EC (₹)",
+    hintTod: "Amount mentioned on bill (+ or −)",
+    debit: "Debit Bill Adjustment (₹)",
+    hintDebit: "Debit adjustment from bill",
+    arrears: "Previous Arrears",
+    hintArrears: "Due (+) or Advance Credit (−)",
+    other: "Other Adjustment",
+    lblIsSolar: "Solar Net Meter?",
+    optSolarNo: "No (Regular)",
+    optSolarYes: "Yes (Solar Net Meter)",
+    hintSolar: "Solar net metering adjustment",
+    lblSolarParams: "Solar Net Meter Parameters",
+    lblSolarCategory: "Solar Connection Level",
+    optSolarLT: "LT Solar (Banking 12%, Grid Support ₹1.96)",
+    optSolarHT: "HT Solar (Banking 7.5%, Grid Support ₹1.45)",
+    hintSolarCat: "LT: 12% | HT: 7.5% Banking",
+    lblSolarImport: "Consumed (Import) Units",
+    hintSolarImport: "Electricity imported from grid",
+    lblSolarExport: "Solar Export Units",
+    hintSolarExport: "Solar electricity exported to grid",
+    lblSolarGen: "Solar Generated Units",
+    hintSolarGen: "Total solar electricity generated",
+    lblSolarLoad: "Sanctioned Load (kW)",
+    hintSolarLoad: "> 10 kW applies Grid Support",
+    lblSolarDay: "Day Consumption Units (9 AM - 6 PM)",
+    hintSolarDay: "Consumption 9 AM to 6 PM (@ ₹0.85 rebate)",
+    btnCalc: "Calculate Bill",
+    btnEditRates: "Edit Rates & FAC",
+    btnCopySummary: "📋 Copy Summary",
+    btnPrint: "Print",
+    editRatesHeader: "Edit Tariff Rates & Monthly FAC Rates",
+    dynamicTariff: "Dynamic Tariff Editor",
+    editRatesDesc: "Update base rates or monthly FAC rates here and save directly:",
+    btnSaveRates: "Save Rates & Recalculate",
+    summaryTitle: "Bill Computation Summary",
+    kpiSolar: "☀️ Solar Adjustment",
+    kpiFixed: "Demand / Fixed",
+    kpiWheel: "Wheeling Charge",
+    kpiEnergy: "Energy Charges",
+    kpiTod: "TOD Tariff EC",
+    kpiFac: "F.A.C. Charges",
+    kpiDuty: "Electricity Duty",
+    kpiTax: "Tax on Sale",
+    kpiOther: "Debit / Other Adj.",
+    kpiArrears: "Previous Arrears",
+    finalCurrentTitle: "CURRENT BILL AMOUNT",
+    finalTotalTitle: "TOTAL PAYABLE BILL",
+    dispRoundNote: "Excluding arrears (Current month's actual bill)",
+    dispArrearsNote: "Current bill + arrears (Nearest ₹10 Round Figure)",
+    lblSolarCardTitle: "Solar Net Metering Settlement",
+    thSolarParam: "Parameter",
+    thSolarCalc: "Calculation",
+    thSolarVal: "Value",
+    slabTableTitle: "Residential Energy & FAC Slabs Breakdown",
+    thSlab: "Slab",
+    thUnits: "Consumed Units",
+    thEnergyRate: "Energy Rate",
+    thEnergyAmt: "Energy Amount",
+    thFacRate: "FAC Rate",
+    thFacAmt: "FAC Amount",
+    tdTotalCharges: "Total Charges",
+    detailedBreakdown: "Detailed Itemized Breakdown",
+    thDesc: "Description",
+    thFormula: "Calculation Formula / Steps",
+    thAmt: "Amount (₹)",
+    discountsSurcharges: "Discounts & Surcharges (Informational)",
+    lblPromptDiscount: "Prompt Payment Discount (1%)",
+    descPromptDiscount: "1% discount for payment before due date (on Demand + Energy + Wheeling + FAC + TOD)",
+    lblDigitalDiscount: "Digital Payment Discount (0.25%)",
+    descDigitalDiscount: "0.25% discount for digital payment (Max up to ₹500)",
+    lblDelaySurcharge: "Delay Payment Charges (1.25%)",
+    descDelaySurcharge: "1.25% surcharge for delayed payment after due date",
+    rowDemand: "1. Demand / Fixed Charges",
+    rowWheel: "2. Wheeling Charges",
+    rowEnergy: "3. Energy Charges",
+    rowTod: "4. TOD Tariff EC",
+    rowFacInd: "5. F.A.C. (Fuel Adjustment Charge)",
+    rowFacGen: "4. F.A.C. (Fuel Adjustment Charge)",
+    rowSolarRebate: "Solar Day Rebate (9 AM - 6 PM)",
+    rowDutyBase: "Electricity Duty Base",
+    rowDutyInd: "6. Electricity Duty",
+    rowDutyGen: "5. Electricity Duty",
+    rowTaxInd: "7. Tax on Sale",
+    rowTaxGen: "6. Tax on Sale",
+    rowGridSupport: "Solar Grid Support Charges",
+    rowDebit: "8. Debit Bill Adjustment",
+    rowOther: "Other Adjustment",
+    rowCurrent: "Current Bill Amount",
+    rowCurrentDesc: "Sum of all current month charges (Excluding arrears)",
+    rowArrears: "Previous Arrears",
+    rowArrearsDue: "Previous Due",
+    rowArrearsCredit: "Advance Credit",
+    rowTotalPayable: "Total Payable Bill",
+    alertSelectCat: "Please select a Tariff Category first!",
+    alertSelectPhase: "Please select Residential Phase!",
+    alertSelectArea: "Please select Residential Area!"
+  },
+  hi: {
+    appTitle: "⚡ महावितरण बिल कैलकुलेटर",
+    appSub: "सटीक बिजली बिल गणना प्रणाली (आवासीय व औद्योगिक FY 2026–27)",
+    consumerParams: "उपभोक्ता विवरण एवं खपत",
+    smartInputs: "स्मार्ट इनपुट",
+    category: "टैरिफ श्रेणी (Tariff Category)",
+    optCatSelect: "-- श्रेणी चुनें (Select Tariff Category) --",
+    optRes: "LT I(B) - आवासीय (Residential)",
+    optBpl: "LT I(A) - गरीबी रेखा से नीचे (Residential BPL)",
+    optInd: "LT V - औद्योगिक (Industrial)",
+    optCommA: "LT II(A) - व्यावसायिक (Commercial 0-20 kW)",
+    optCommB: "LT II(B) - व्यावसायिक (Commercial >20-50 kW)",
+    optCommC: "LT II(C) - व्यावसायिक (Commercial >50 kW)",
+    optWaterA: "LT III(A) - जल आपूर्ति (Water Works <=20 kW)",
+    optWaterB: "LT III(B) - जल आपूर्ति (Water Works 20-40 kW)",
+    optWaterC: "LT III(C) - जल आपूर्ति (Water Works >40 kW)",
+    optGovA: "LT VII(A) - सरकारी सेवाएं (Govt Services <=20 kW)",
+    optGovB: "LT VII(A) - सरकारी सेवाएं (Govt Services 20-50 kW)",
+    optGovC: "LT VII(A) - सरकारी सेवाएं (Govt Services >50 kW)",
+    optEv: "LT VIII - ईवी चार्जिंग स्टेशन (EV Charging)",
+    kvahUnits: "kVAh खपत यूनिट्स",
+    hintKvah: "ऊर्जा, व्हीलिंग और FAC शुल्क के लिए",
+    kwhUnits: "kWh खपत यूनिट्स",
+    hintKwh: "बिक्री कर (@ 28.94 पैसे/यूनिट) के लिए",
+    units: "खपत यूनिट्स (Consumed Units)",
+    hintUnits: "कुल बिजली खपत यूनिट्स",
+    days: "बिलिंग दिवस (Billing Days)",
+    hintDays: "Days ÷ 30 (उदा. 31/30 = 1.03)",
+    billingRatio: "बिलिंग अनुपात (Billing Ratio)",
+    hintRatio: "सीधे अनुपात दर्ज करें (उदा. 1.03)",
+    demand: "बिलिंग डिमांड (Billing Demand)",
+    hintDemand: "औद्योगिक: @ डिमांड दर × बिलिंग डिमांड",
+    phase: "आवासीय फेज (Residential Phase)",
+    optPhaseSelect: "-- फेज चुनें (Select Phase) --",
+    singlePhase: "वन फेज (₹130/माह)",
+    threePhase: "थ्री फेज (₹435/माह)",
+    area: "आवासीय क्षेत्र (Residential Area)",
+    optAreaSelect: "-- क्षेत्र चुनें (Select Area) --",
+    areaOther: "अन्य क्षेत्र (Other Area)",
+    areaMuni: "महानगरपालिका क्षेत्र (+₹10)",
+    tod: "TOD टैरिफ EC (₹)",
+    hintTod: "बिल में दर्ज (+ या −) राशि",
+    debit: "डेबिट बिल समायोजन (₹)",
+    hintDebit: "बिल में दर्ज डेबिट समायोजन राशि",
+    arrears: "पिछला बकाया / जमा (Arrears)",
+    hintArrears: "बकाया (+) या अग्रिम जमा (-)",
+    other: "अन्य समायोजन (Other Adjustment)",
+    lblIsSolar: "सोलर नेट मीटर?",
+    optSolarNo: "नहीं (Regular)",
+    optSolarYes: "हाँ (Solar Net Meter)",
+    hintSolar: "सोलर नेट मीटरिंग समायोजन",
+    lblSolarParams: "सोलर नेट मीटर विवरण",
+    lblSolarCategory: "सोलर कनेक्शन स्तर",
+    optSolarLT: "LT सोलर (बैंकिंग 12%, ग्रिड सपोर्ट ₹1.96)",
+    optSolarHT: "HT सोलर (बैंकिंग 7.5%, ग्रिड सपोर्ट ₹1.45)",
+    hintSolarCat: "LT: 12% | HT: 7.5% बैंकिंग",
+    lblSolarImport: "उपभोग (आयात) यूनिट्स",
+    hintSolarImport: "ग्रिड से ली गई बिजली (आयात)",
+    lblSolarExport: "सौर निर्यात यूनिट्स",
+    hintSolarExport: "ग्रिड को भेजी गई सौर बिजली (निर्यात)",
+    lblSolarGen: "सौर व्युत्पन्न यूनिट्स",
+    hintSolarGen: "कुल सौर उत्पादन",
+    lblSolarLoad: "स्वीकृत लोड (kW)",
+    hintSolarLoad: "> 10 kW होने पर ग्रिड सपोर्ट लागू",
+    lblSolarDay: "दिन की खपत यूनिट्स (9 AM - 6 PM)",
+    hintSolarDay: "सुबह 9 से शाम 6 बजे खपत (@ ₹0.85 छूट)",
+    btnCalc: "बिल की गणना करें",
+    btnEditRates: "दरें और FAC बदलें",
+    btnCopySummary: "📋 बिल कॉपी करें",
+    btnPrint: "प्रिंट करें",
+    editRatesHeader: "टैरिफ दरें और मासिक FAC दरें संपादित करें",
+    dynamicTariff: "डायनामिक टैरिफ संपादक",
+    editRatesDesc: "दरें या चालू माह की FAC दरें बदलने पर यहां अपडेट करके सहेजें:",
+    btnSaveRates: "दरें सहेजें और पुनः गणना करें",
+    summaryTitle: "बिल सारांश (Summary)",
+    kpiSolar: "☀️ सौर समायोजन",
+    kpiFixed: "डिमांड / फिक्स्ड शुल्क",
+    kpiWheel: "व्हीलिंग शुल्क",
+    kpiEnergy: "ऊर्जा शुल्क",
+    kpiTod: "TOD टैरिफ EC",
+    kpiFac: "F.A.C. शुल्क",
+    kpiDuty: "विद्युत शुल्क (Electricity Duty)",
+    kpiTax: "बिक्री कर (Tax on Sale)",
+    kpiOther: "डेबिट / अन्य समायोजन",
+    kpiArrears: "पिछला बकाया",
+    finalCurrentTitle: "चालू माह बिल (CURRENT BILL AMOUNT)",
+    finalTotalTitle: "कुल देय राशि (TOTAL PAYABLE BILL)",
+    dispRoundNote: "बकाया छोड़कर (चालू माह का वास्तविक बिल)",
+    dispArrearsNote: "चालू बिल + बकाया (Nearest ₹10 Round Figure)",
+    lblSolarCardTitle: "सौर ऊर्जा नेट मीटरिंग समायोजन",
+    thSolarParam: "पैरामीटर (Parameter)",
+    thSolarCalc: "गणना (Calculation)",
+    thSolarVal: "मान (Value)",
+    slabTableTitle: "आवासीय ऊर्जा और FAC स्लैब विवरण",
+    thSlab: "स्लैब",
+    thUnits: "खपत यूनिट्स",
+    thEnergyRate: "ऊर्जा दर (₹)",
+    thEnergyAmt: "ऊर्जा राशि (₹)",
+    thFacRate: "FAC दर (₹)",
+    thFacAmt: "FAC राशि (₹)",
+    tdTotalCharges: "कुल शुल्क",
+    detailedBreakdown: "विस्तृत गणना विवरण (Itemized Breakdown)",
+    thDesc: "घटक (Description)",
+    thFormula: "गणना सूत्र / विवरण",
+    thAmt: "राशि (₹)",
+    discountsSurcharges: "छूट और विलंब शुल्क (Discounts & Surcharges)",
+    lblPromptDiscount: "समय पर भुगतान छूट (1%)",
+    descPromptDiscount: "नियत तिथि से पहले भुगतान पर 1% छूट (डिमांड + ऊर्जा + व्हीलिंग + FAC + TOD पर)",
+    lblDigitalDiscount: "डिजिटल पेमेंट छूट (0.25%)",
+    descDigitalDiscount: "डिजिटल भुगतान पर 0.25% छूट (अधिकतम ₹500 तक)",
+    lblDelaySurcharge: "विलंब शुल्क (1.25%)",
+    descDelaySurcharge: "नियत तिथि के बाद भुगतान पर 1.25% विलंब अधिभार",
+    rowDemand: "1. डिमांड / फिक्स्ड शुल्क (Demand / Fixed)",
+    rowWheel: "2. व्हीलिंग शुल्क (Wheeling Charges)",
+    rowEnergy: "3. ऊर्जा शुल्क (Energy Charges)",
+    rowTod: "4. TOD टैरिफ EC",
+    rowFacInd: "5. F.A.C. (Fuel Adjustment Charge)",
+    rowFacGen: "4. F.A.C. (Fuel Adjustment Charge)",
+    rowSolarRebate: "सोलर डे रिबेट (सुबह 9 से शाम 6)",
+    rowDutyBase: "विद्युत शुल्क आधार (Electricity Duty Base)",
+    rowDutyInd: "6. विद्युत शुल्क (Electricity Duty)",
+    rowDutyGen: "5. विद्युत शुल्क (Electricity Duty)",
+    rowTaxInd: "7. बिक्री कर (Tax on Sale)",
+    rowTaxGen: "6. बिक्री कर (Tax on Sale)",
+    rowGridSupport: "सोलर ग्रिड सपोर्ट शुल्क",
+    rowDebit: "8. डेबिट बिल समायोजन (Debit Adjustment)",
+    rowOther: "अन्य समायोजन (Other Adjustment)",
+    rowCurrent: "चालू बिल (Current Bill Amount)",
+    rowCurrentDesc: "सभी चालू शुल्कों का योग (बकाया छोड़कर)",
+    rowArrears: "पिछला बकाया / जमा (Arrears)",
+    rowArrearsDue: "पिछला बकाया (Due)",
+    rowArrearsCredit: "अग्रिम जमा (Credit)",
+    rowTotalPayable: "कुल देय राशि (Total Payable Bill)",
+    alertSelectCat: "कृपया पहले Tariff Category (वर्गवारी) चुनें!",
+    alertSelectPhase: "कृपया Residential Phase (फेज प्रकार) चुनें!",
+    alertSelectArea: "कृपया Residential Area (परिसर) चुनें!"
+  }
+};
+
+let currentLang = "mr";
+
+function changeLanguage(lang) {
+  currentLang = lang;
+  const dict = i18n[lang];
+  $("lblAppTitle").textContent = dict.appTitle;
+  $("lblAppSub").textContent = dict.appSub;
+  $("lblConsumerParams").textContent = dict.consumerParams;
+  $("lblSmartInputs").textContent = dict.smartInputs;
+  $("lblCategory").textContent = dict.category;
+  $("optCatSelect").textContent = dict.optCatSelect;
+  $("optRes").textContent = dict.optRes;
+  $("optBpl").textContent = dict.optBpl;
+  $("optInd").textContent = dict.optInd;
+  $("optCommA").textContent = dict.optCommA;
+  $("optCommB").textContent = dict.optCommB;
+  $("optCommC").textContent = dict.optCommC;
+  $("optWaterA").textContent = dict.optWaterA;
+  $("optWaterB").textContent = dict.optWaterB;
+  $("optWaterC").textContent = dict.optWaterC;
+  $("optGovA").textContent = dict.optGovA;
+  $("optGovB").textContent = dict.optGovB;
+  $("optGovC").textContent = dict.optGovC;
+  $("optEv").textContent = dict.optEv;
+
+  $("lblKvahUnits").textContent = dict.kvahUnits;
+  $("hintKvah").textContent = dict.hintKvah;
+  $("lblKwhUnits").textContent = dict.kwhUnits;
+  $("hintKwh").textContent = dict.hintKwh;
+  $("lblUnits").textContent = dict.units;
+  $("hintUnits").textContent = dict.hintUnits;
+  $("lblDays").textContent = dict.days;
+  $("hintDays").textContent = dict.hintDays;
+  $("lblBillingRatio").textContent = dict.billingRatio;
+  $("hintRatio").textContent = dict.hintRatio;
+  $("lblDemand").textContent = dict.demand;
+  $("hintDemand").textContent = dict.hintDemand;
+
+  $("lblPhase").textContent = dict.phase;
+  $("optPhaseSelect").textContent = dict.optPhaseSelect;
+  $("optSingle").textContent = dict.singlePhase;
+  $("optThree").textContent = dict.threePhase;
+
+  $("lblArea").textContent = dict.area;
+  $("optAreaSelect").textContent = dict.optAreaSelect;
+  $("optAreaOther").textContent = dict.areaOther;
+  $("optAreaMuni").textContent = dict.areaMuni;
+
+  $("lblTod").textContent = dict.tod;
+  $("hintTod").textContent = dict.hintTod;
+  $("lblDebit").textContent = dict.debit;
+  $("hintDebit").textContent = dict.hintDebit;
+  $("lblArrears").textContent = dict.arrears;
+  $("hintArrears").textContent = dict.hintArrears;
+  $("lblOther").textContent = dict.other;
+
+  $("lblIsSolar").textContent = dict.lblIsSolar;
+  $("optSolarNo").textContent = dict.optSolarNo;
+  $("optSolarYes").textContent = dict.optSolarYes;
+  $("hintSolar").textContent = dict.hintSolar;
+  $("lblSolarParams").textContent = dict.lblSolarParams;
+  $("lblSolarCategory").textContent = dict.lblSolarCategory;
+  $("optSolarLT").textContent = dict.optSolarLT;
+  $("optSolarHT").textContent = dict.optSolarHT;
+  $("hintSolarCat").textContent = dict.hintSolarCat;
+  $("lblSolarImport").textContent = dict.lblSolarImport;
+  $("hintSolarImport").textContent = dict.hintSolarImport;
+  $("lblSolarExport").textContent = dict.lblSolarExport;
+  $("hintSolarExport").textContent = dict.hintSolarExport;
+  $("lblSolarGen").textContent = dict.lblSolarGen;
+  $("hintSolarGen").textContent = dict.hintSolarGen;
+  $("lblSolarLoad").textContent = dict.lblSolarLoad;
+  $("hintSolarLoad").textContent = dict.hintSolarLoad;
+  $("lblSolarDay").textContent = dict.lblSolarDay;
+  $("hintSolarDay").textContent = dict.hintSolarDay;
+
+  $("txtBtnCalc").textContent = dict.btnCalc;
+  $("txtBtnEditRates").textContent = dict.btnEditRates;
+  $("lblBtnCopy").textContent = dict.btnCopySummary;
+  $("txtBtnPrint").textContent = dict.btnPrint;
+
+  $("lblEditRatesHeader").textContent = dict.editRatesHeader;
+  $("lblDynamicTariff").textContent = dict.dynamicTariff;
+  $("lblEditRatesDesc").textContent = dict.editRatesDesc;
+  $("btnSaveRates").textContent = dict.btnSaveRates;
+
+  $("lblSummaryTitle").textContent = dict.summaryTitle;
+  $("kpiLblFixed").textContent = dict.kpiFixed;
+  $("kpiLblWheel").textContent = dict.kpiWheel;
+  $("kpiLblEnergy").textContent = dict.kpiEnergy;
+  $("kpiLblTod").textContent = dict.kpiTod;
+  $("kpiLblFac").textContent = dict.kpiFac;
+  $("kpiLblDuty").textContent = dict.kpiDuty;
+  $("kpiLblTax").textContent = dict.kpiTax;
+  $("kpiLblOther").textContent = dict.kpiOther;
+  $("kpiLblArrears").textContent = dict.kpiArrears;
+
+  $("lblFinalCurrentTitle").textContent = dict.finalCurrentTitle;
+  $("lblFinalTotalTitle").textContent = dict.finalTotalTitle;
+  $("dispRoundNote").textContent = dict.dispRoundNote;
+
+  $("lblSolarCardTitle").textContent = dict.lblSolarCardTitle;
+  $("thSolarParam").textContent = dict.thSolarParam;
+  $("thSolarCalc").textContent = dict.thSolarCalc;
+  $("thSolarVal").textContent = dict.thSolarVal;
+
+  $("lblSlabTableTitle").textContent = dict.slabTableTitle;
+  $("thSlab").textContent = dict.thSlab;
+  $("thUnits").textContent = dict.thUnits;
+  $("thEnergyRate").textContent = dict.thEnergyRate;
+  $("thEnergyAmt").textContent = dict.thEnergyAmt;
+  $("thFacRate").textContent = dict.thFacRate;
+  $("thFacAmt").textContent = dict.thFacAmt;
+  $("tdTotalCharges").textContent = dict.tdTotalCharges;
+
+  $("lblDetailedBreakdown").textContent = dict.detailedBreakdown;
+  $("thDesc").textContent = dict.thDesc;
+  $("thFormula").textContent = dict.thFormula;
+  $("thAmt").textContent = dict.thAmt;
+
+  $("lblDiscountsSurcharges").textContent = dict.discountsSurcharges;
+  $("lblPromptDiscount").textContent = dict.lblPromptDiscount;
+  $("descPromptDiscount").textContent = dict.descPromptDiscount;
+  $("lblDigitalDiscount").textContent = dict.lblDigitalDiscount;
+  $("descDigitalDiscount").textContent = dict.descDigitalDiscount;
+  $("lblDelaySurcharge").textContent = dict.lblDelaySurcharge;
+  $("descDelaySurcharge").textContent = dict.descDelaySurcharge;
+
+  if ($("resultsWrapper").classList.contains("show-results")) {
+    calculateBill();
+  }
+}
+
+const defaultTariffs = {
+  ind: { name: "LT V - Industrial", demandRate: 650, energyRate: 8.44, wheelRate: 0.81, facRate: 0.40, duty: 7.5, taxRatePaise: 28.94, type: "ind" },
+  res: { name: "LT I(B) - Residential", fixedOnePhase: 130, fixedThreePhase: 435, wheel: 1.60, duty: 16, tax: 0, slab1: 3.96, slab2: 10.80, slab3: 15.03, slab4: 17.53, slab5: 17.53, fac1: 0.250, fac2: 0.500, fac3: 0.650, fac4: 0.700, type: "res" },
+  bpl: { name: "LT I(A) - Residential BPL", fixed: 35, energy: 1.48, wheel: 0.00, facRate: 0.25, duty: 16, tax: 0, type: "bpl" },
+  commA: { name: "LT II(A) - Commercial <= 20 kW", fixed: 540, energy: 8.51, wheel: 1.60, facRate: 0.50, duty: 21, taxRatePaise: 28.94, type: "comm" },
+  commB: { name: "LT II(B) - Commercial 20-50 kW", fixed: 550, energy: 12.40, wheel: 1.52, facRate: 0.50, duty: 21, taxRatePaise: 28.94, type: "commKva" },
+  commC: { name: "LT II(C) - Commercial > 50 kW", fixed: 550, energy: 14.89, wheel: 1.52, facRate: 0.50, duty: 21, taxRatePaise: 28.94, type: "commKva" },
+  waterA: { name: "LT III(A) - Water <= 20 kW", fixed: 170, energy: 3.89, wheel: 1.60, facRate: 0.50, duty: 0, tax: 0, type: "waterKva" },
+  waterB: { name: "LT III(B) - Water 20-40 kW", fixed: 210, energy: 5.84, wheel: 1.52, facRate: 0.50, duty: 0, tax: 0, type: "waterKva" },
+  waterC: { name: "LT III(C) - Water > 40 kW", fixed: 250, energy: 7.79, wheel: 1.52, facRate: 0.50, duty: 0, tax: 0, type: "waterKva" },
+  govA: { name: "LT VII(A) - Govt <= 20 kW", fixed: 455, energy: 2.73, wheel: 1.60, facRate: 0.50, duty: 21, tax: 0, type: "gov" },
+  govB: { name: "LT VII(A) - Govt 20-50 kW", fixed: 455, energy: 5.95, wheel: 1.52, facRate: 0.50, duty: 21, tax: 0, type: "govKva" },
+  govC: { name: "LT VII(A) - Govt > 50 kW", fixed: 455, energy: 6.76, wheel: 1.52, facRate: 0.50, duty: 21, tax: 0, type: "govKva" },
+  ev: { name: "LT VIII - EV Charging", fixed: 0, energy: 7.73, wheel: 1.52, facRate: 0.50, duty: 0, tax: 0, type: "ev" }
+};
+
+let activeRates = JSON.parse(JSON.stringify(defaultTariffs));
+
+const $ = id => document.getElementById(id);
+const money = n => "₹" + (Number(n) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const qty = n => Number((Number(n) || 0).toFixed(2)).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+const num = id => {
+  const v = parseFloat($(id).value);
+  return isNaN(v) ? 0 : v;
+};
+
+// Days to Ratio & Ratio to Days Syncing
+function onDaysInput(val) {
+  const d = Math.max(1, parseFloat(val) || 30);
+  const r = Math.round((d / 30) * 100) / 100;
+  $("billingRatio").value = r.toFixed(2);
+  onInputUpdate();
+}
+
+function onRatioInput(val) {
+  const r = Math.max(0.01, parseFloat(val) || 1.0);
+  const d = Math.round(r * 30);
+  $("days").value = d;
+  onInputUpdate();
+}
+
+// Simple Dark / Light Theme Toggle
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  if (isDark) {
+    document.documentElement.removeAttribute("data-theme");
+    $("themeBtn").textContent = "🌙 Dark Mode";
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
+    $("themeBtn").textContent = "☀️ Light Mode";
+  }
+}
+
+function onCategoryChange() {
+  updateCategoryVisibility();
+  $("resultsWrapper").classList.remove("show-results");
+}
+
+function updateCategoryVisibility() {
+  const cat = $("category").value;
+  if (!cat) {
+    $("kvahField").classList.add("hidden");
+    $("kwhField").classList.add("hidden");
+    $("generalUnitsField").classList.remove("hidden");
+    $("demandField").classList.add("hidden");
+    $("phaseField").classList.add("hidden");
+    $("areaField").classList.add("hidden");
+    $("todField").classList.add("hidden");
+    $("debitAdjField").classList.add("hidden");
+    $("ratioField").classList.remove("hidden");
+    return;
+  }
+
+  const isRes = (cat === "res");
+  const isBpl = (cat === "bpl");
+  const isInd = (cat === "ind");
+  const isKva = activeRates[cat] ? activeRates[cat].type.endsWith("Kva") : false;
+
+  $("areaField").classList.toggle("hidden", !isRes);
+  $("phaseField").classList.toggle("hidden", !isRes);
+  $("slabCard").classList.toggle("hidden", !isRes);
+
+  $("kvahField").classList.toggle("hidden", !isInd);
+  $("kwhField").classList.toggle("hidden", !isInd);
+  $("generalUnitsField").classList.toggle("hidden", isInd);
+  $("demandField").classList.toggle("hidden", !(isInd || isKva));
+  $("todField").classList.toggle("hidden", !isInd);
+  $("debitAdjField").classList.toggle("hidden", !isInd);
+
+  populateRatesInputs();
+}
+
+function onSolarToggle() {
+  const isSolar = ($("isSolar").value === "yes");
+  $("solarSection").classList.toggle("hidden", !isSolar);
+  $("solarCard").style.display = isSolar ? "block" : "none";
+  $("kpiBoxSolar").style.display = isSolar ? "block" : "none";
+  if ($("resultsWrapper").classList.contains("show-results")) {
+    calculateBill();
+  }
+}
+
+function calculateBill() {
+  const cat = $("category").value;
+  const dict = i18n[currentLang];
+  if (!cat) {
+    alert(dict.alertSelectCat);
+    return false;
+  }
+
+  const t = activeRates[cat];
+  const days = Math.max(1, Math.floor(num("days") || 30));
+  const arrears = num("arrears");
+  let otherAdj = num("otherAdjustment");
+
+  // Determine ratio from ratio input or days
+  let ratio = num("billingRatio");
+  if (!ratio || ratio <= 0) {
+    ratio = Math.round((days / 30) * 100) / 100;
+    $("billingRatio").value = ratio.toFixed(2);
+  }
+
+  // ----------------- SOLAR NET METERING ADJUSTMENT -----------------
+  const isSolar = ($("isSolar").value === "yes");
+  let solarCategory = "LT", bankingPercent = 12, gridSupportRate = 1.96;
+  let importUnits = 0, exportUnits = 0, genUnits = 0, solarLoad = 0, dayUnits = 0;
+  let bankingUnits = 0, currentExportUnits = 0, netBilledUnits = 0, bankedUnitsCarried = 0;
+  let gridSupportCharge = 0, solarDayRebate = 0;
+
+  if (isSolar) {
+    solarCategory = $("solarCategory").value || "LT";
+    bankingPercent = (solarCategory === "LT") ? 12 : 7.5;
+    gridSupportRate = (solarCategory === "LT") ? 1.96 : 1.45;
+
+    importUnits = Math.max(0, num("solarImportUnits"));
+    exportUnits = Math.max(0, num("solarExportUnits"));
+    genUnits = Math.max(0, num("solarGenUnits"));
+    solarLoad = Math.max(0, num("solarSanctionedLoad"));
+    dayUnits = Math.max(0, num("solarDayUnits"));
+
+    bankingUnits = exportUnits * (bankingPercent / 100);
+    currentExportUnits = Math.max(0, exportUnits - bankingUnits);
+
+    if (importUnits >= currentExportUnits) {
+      netBilledUnits = importUnits - currentExportUnits;
+      bankedUnitsCarried = 0;
+    } else {
+      netBilledUnits = 0;
+      bankedUnitsCarried = currentExportUnits - importUnits;
+    }
+
+    if (solarLoad > 10) {
+      gridSupportCharge = genUnits * gridSupportRate;
+    }
+
+    solarDayRebate = dayUnits * 0.85;
+    otherAdj += (gridSupportCharge - solarDayRebate);
+
+    $("solarDetailsBody").innerHTML = `
+      <tr>
+        <td><strong>${currentLang === 'en' ? 'Consumed (Import) Units' : (currentLang === 'hi' ? 'खपत (आयात) यूनिट्स' : 'वापरलेली (आयात) युनिट्स')}</strong></td>
+        <td>${currentLang === 'en' ? 'Electricity imported from grid' : (currentLang === 'hi' ? 'ग्रिड से ली गई बिजली (आयात)' : 'ग्रीडमधून घेतलेली वीज')}</td>
+        <td><strong>${qty(importUnits)} kWh</strong></td>
+      </tr>
+      <tr>
+        <td><strong>${currentLang === 'en' ? 'Solar Export Units' : (currentLang === 'hi' ? 'सौर निर्यात यूनिट्स' : 'सौर निर्यात युनिट्स')}</strong></td>
+        <td>${currentLang === 'en' ? 'Solar electricity exported to grid' : (currentLang === 'hi' ? 'ग्रिड को भेजी गई सौर बिजली (निर्यात)' : 'ग्रीडला दिलेली सौर वीज')}</td>
+        <td><strong>${qty(exportUnits)} kWh</strong></td>
+      </tr>
+      <tr>
+        <td><strong>${currentLang === 'en' ? `Banking Charges (${bankingPercent}%)` : (currentLang === 'hi' ? `बैंकिंग शुल्क (${bankingPercent}%)` : `बँकिंग शुल्क (${bankingPercent}%)`)}</strong></td>
+        <td>${qty(exportUnits)} ${currentLang === 'en' ? 'export' : (currentLang === 'hi' ? 'निर्यात' : 'निर्यात')} × ${bankingPercent}%</td>
+        <td class="solar-text-red"><strong>− ${qty(bankingUnits)} kWh</strong></td>
+      </tr>
+      <tr class="subtotal-row">
+        <td><strong>${currentLang === 'en' ? 'Net Available Export Units (Current Export)' : (currentLang === 'hi' ? 'शुद्ध उपलब्ध निर्यात यूनिट्स (करंट एक्सपोर्ट)' : 'निव्वळ उपलब्ध निर्यात युनिट्स')}</strong></td>
+        <td>${qty(exportUnits)} − ${qty(bankingUnits)} ${currentLang === 'en' ? 'banking units' : (currentLang === 'hi' ? 'बैंकिंग यूनिट्स' : 'बँकिंग युनिट्स')}</td>
+        <td><strong>${qty(currentExportUnits)} kWh</strong></td>
+      </tr>
+      <tr class="solar-highlight-yellow">
+        <td><strong>${currentLang === 'en' ? 'Net Billed Consumption Units' : (currentLang === 'hi' ? 'शुद्ध बिल योग्य खपत यूनिट्स' : 'निव्वळ बिलपात्र वापर युनिट्स')}</strong></td>
+        <td>${importUnits >= currentExportUnits ? `${qty(importUnits)} ${currentLang === 'en' ? 'import' : (currentLang === 'hi' ? 'आयात' : 'आयात')} − ${qty(currentExportUnits)} ${currentLang === 'en' ? 'export' : (currentLang === 'hi' ? 'निर्यात' : 'निर्यात')}` : '0 kWh (Surplus Generated)'}</td>
+        <td><strong>${qty(netBilledUnits)} kWh</strong></td>
+      </tr>
+      ${bankedUnitsCarried > 0 ? `
+      <tr class="solar-highlight-green">
+        <td><strong>${currentLang === 'en' ? 'Banked Units Carried Forward' : (currentLang === 'hi' ? 'जमा सौर यूनिट्स (अगले माह हेतु)' : 'पुढील महिन्यात वापरण्यासाठी जमा सौर युनिट्स')}</strong></td>
+        <td>${currentLang === 'en' ? 'Surplus solar units banked for next month' : (currentLang === 'hi' ? 'अगले माह के लिए जमा सौर यूनिट्स' : 'पुढील महिन्यात वापरण्यासाठी जमा सौर युनिट्स')}</td>
+        <td class="solar-text-green"><strong>+ ${qty(bankedUnitsCarried)} kWh</strong></td>
+      </tr>` : ''}
+      <tr>
+        <td><strong>${currentLang === 'en' ? 'Solar Generated Units' : (currentLang === 'hi' ? 'सौर निर्मित यूनिट्स' : 'सौर निर्मिती युनिट्स')}</strong></td>
+        <td>${currentLang === 'en' ? 'Total solar electricity generated' : (currentLang === 'hi' ? 'कुल उत्पादित सौर बिजली' : 'एकूण उत्पादित सौर वीज')}</td>
+        <td><strong>${qty(genUnits)} kWh</strong></td>
+      </tr>
+      <tr>
+        <td><strong>${currentLang === 'en' ? `Solar Grid Support Charges (${solarCategory})` : (currentLang === 'hi' ? `सौर ग्रिड सपोर्ट शुल्क (${solarCategory})` : `सौर ग्रीड सपोर्ट शुल्क (${solarCategory})`)}</strong></td>
+        <td>${solarLoad > 10 ? `${qty(genUnits)} gen × ₹${gridSupportRate} (Load ${solarLoad} kW > 10 kW)` : (currentLang === 'en' ? 'Not Applicable (Load <= 10 kW)' : (currentLang === 'hi' ? 'लागू नहीं (Load <= 10 kW)' : 'लागू नाही (Load <= 10 kW)'))}</td>
+        <td class="${gridSupportCharge > 0 ? 'solar-text-red' : ''}"><strong>+ ${money(gridSupportCharge)}</strong></td>
+      </tr>
+      <tr>
+        <td><strong>${currentLang === 'en' ? 'Solar Day Rebate (9 AM - 6 PM)' : (currentLang === 'hi' ? 'सौर दिवस छूट (सुबह 9 से शाम 6)' : 'सौर दिवस सवलत (सकाळी 9 ते संध्याकाळी 6)')}</strong></td>
+        <td>${qty(dayUnits)} units × ₹0.85/unit</td>
+        <td class="solar-text-green"><strong>− ${money(solarDayRebate)}</strong></td>
+      </tr>
+    `;
+
+    $("kpiSolar").textContent = (gridSupportCharge >= solarDayRebate ? "+" : "−") + money(Math.abs(gridSupportCharge - solarDayRebate));
+  }
+
+  let fixedCharge = 0, fixedDesc = "";
+  let energyTotal = 0, energyDesc = "", energySlabs = [];
+  let wheelingCharge = 0, wheelingDesc = "";
+  let facCharge = 0, facDesc = "", facSlabs = [];
+  let todTariff = 0;
+  let debitAdj = 0;
+  let taxOnSale = 0, taxDesc = "";
+  let dutyCharge = 0, dutyBase = 0, dutyPercent = t.duty;
+  let currentBillExact = 0, currentBill = 0, totalPayable = 0, totalRaw = 0;
+
+  if (cat === "ind") {
+    // ----------------- INDUSTRIAL (LT V) -----------------
+    const rawKvah = Math.max(0, num("kvahUnits"));
+    const rawKwh = Math.max(0, num("kwhUnits"));
+    const billingDemand = Math.max(0, num("billingDemand"));
+    todTariff = num("todTariff");
+    debitAdj = num("debitAdjustment");
+
+    const kvah = isSolar ? netBilledUnits : rawKvah;
+    const kwh = isSolar ? netBilledUnits : rawKwh;
+
+    fixedCharge = t.demandRate * billingDemand;
+    fixedDesc = `${qty(billingDemand)} Demand × ₹${t.demandRate}`;
+
+    wheelingCharge = kvah * t.wheelRate;
+    wheelingDesc = `${qty(kvah)} kVAh × ₹${t.wheelRate}`;
+
+    energyTotal = kvah * t.energyRate;
+    energyDesc = `${qty(kvah)} kVAh × ₹${t.energyRate}`;
+
+    facCharge = kvah * t.facRate;
+    facDesc = `${qty(kvah)} kVAh × ₹${t.facRate.toFixed(2)}`;
+
+    dutyBase = fixedCharge + wheelingCharge + energyTotal + todTariff + facCharge;
+    if (isSolar && solarDayRebate > 0) {
+      dutyBase = Math.max(0, dutyBase - solarDayRebate);
+    }
+    dutyCharge = (dutyBase > 0) ? (dutyBase * (t.duty / 100)) : 0;
+
+    const taxRatePaise = t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94;
+    taxOnSale = Math.floor(kwh * taxRatePaise) / 100;
+    taxDesc = `(${qty(kwh)} kWh × ${taxRatePaise} ps) ÷ 100`;
+
+    currentBillExact = fixedCharge + wheelingCharge + energyTotal + todTariff + facCharge + dutyCharge + taxOnSale + debitAdj + otherAdj;
+    currentBill = currentBillExact; 
+    
+    totalRaw = currentBillExact + arrears;
+    totalPayable = Math.round(totalRaw / 10) * 10;
+
+  } else {
+    // ----------------- RESIDENTIAL & OTHER CATEGORIES -----------------
+    const rawUnits = Math.max(0, num("units"));
+    const units = isSolar ? netBilledUnits : rawUnits;
+    const kva = Math.max(0, num("billingDemand"));
+
+    if (cat === "res") {
+      const pVal = $("phaseType").value;
+      const aVal = $("area").value;
+      if (!pVal) {
+        alert(dict.alertSelectPhase);
+        return false;
+      }
+      if (!aVal) {
+        alert(dict.alertSelectArea);
+        return false;
+      }
+
+      const isThreePhase = (pVal === "three");
+      const isMunicipal = (aVal === "municipal");
+
+      fixedCharge = isThreePhase ? t.fixedThreePhase : t.fixedOnePhase;
+      fixedDesc = isThreePhase ? (currentLang === 'en' ? "Three Phase (₹435)" : (currentLang === 'hi' ? "थ्री फेज (₹435)" : "थ्री फेज (₹४३५)")) : (currentLang === 'en' ? "One Phase (₹130)" : (currentLang === 'hi' ? "एक फेज (₹130)" : "एक फेज (₹१३०)"));
+
+      if (isMunicipal) {
+        fixedCharge += 10;
+        fixedDesc += currentLang === 'en' ? " + ₹10 (Muni. Area)" : (currentLang === 'hi' ? " + ₹10 (महानगरपालिका क्षेत्र)" : " + ₹१० (महानगरपालिका क्षेत्र)");
+      }
+
+      const firstLimit = Math.round(100 * ratio);
+      const slabDefs = [
+        { name: currentLang === 'en' ? 'Slab 1' : (currentLang === 'hi' ? 'स्लैब 1' : 'स्लॅब १'), limit: firstLimit, eRate: t.slab1, fRate: t.fac1 },
+        { name: currentLang === 'en' ? 'Slab 2' : (currentLang === 'hi' ? 'स्लैब 2' : 'स्लॅब २'), limit: 200, eRate: t.slab2, fRate: t.fac2 },
+        { name: currentLang === 'en' ? 'Slab 3' : (currentLang === 'hi' ? 'स्लैब 3' : 'स्लॅब ३'), limit: 200, eRate: t.slab3, fRate: t.fac3 },
+        { name: currentLang === 'en' ? 'Slab 4' : (currentLang === 'hi' ? 'स्लैब 4' : 'स्लॅब ४'), limit: 500, eRate: t.slab4, fRate: t.fac4 },
+        { name: currentLang === 'en' ? 'Slab 5' : (currentLang === 'hi' ? 'स्लैब 5' : 'स्लॅब ५'), limit: Infinity, eRate: t.slab5, fRate: t.fac4 }
+      ];
+
+      let remE = units;
+      for (const s of slabDefs) {
+        if (remE <= 0) break;
+        const taken = Math.min(remE, s.limit);
+        const amtE = taken * s.eRate;
+        const amtF = taken * s.fRate;
+        energyTotal += amtE;
+        facCharge += amtF;
+        energySlabs.push({ name: s.name, units: taken, eRate: s.eRate, amtE, fRate: s.fRate, amtF });
+        remE -= taken;
+      }
+      energyDesc = currentLang === 'en' ? `First slab ${firstLimit} units, then 101-300, 301-500, 501-1000` : (currentLang === 'hi' ? `प्रथम स्लैब ${firstLimit} यूनिट्स, आगे 101-300, 301-500, 501-1000` : `पहिला स्लॅब ${firstLimit} युनिट्स, त्यानंतर 101-300, 301-500, 501-1000`);
+      wheelingCharge = units * t.wheel;
+      wheelingDesc = `${qty(units)} ${currentLang === 'en' ? 'units' : (currentLang === 'hi' ? 'यूनिट्स' : 'युनिट्स')} × ₹${t.wheel}`;
+      facDesc = currentLang === 'en' ? `First slab ${firstLimit} units based FAC` : (currentLang === 'hi' ? `प्रथम स्लैब ${firstLimit} यूनिट्स आधारित FAC` : `पहिल्या स्लॅबमधील ${firstLimit} युनिट्सवर आधारित FAC`);
+
+    } else if (cat === "bpl") {
+      fixedCharge = t.fixed;
+      fixedDesc = currentLang === 'en' ? `BPL Fixed Charge (₹${t.fixed})` : (currentLang === 'hi' ? `BPL नियत आकार (₹${t.fixed})` : `BPL नियत आकार (₹${t.fixed})`);
+      energyTotal = units * t.energy;
+      energyDesc = `${qty(units)} units × ₹${t.energy}`;
+      wheelingCharge = 0;
+      wheelingDesc = `₹0.00 (Exempted)`;
+      facCharge = units * t.facRate;
+      facDesc = `${qty(units)} units × ₹${t.facRate}`;
+    } else {
+      if (t.type.endsWith("Kva")) {
+        fixedCharge = t.fixed * kva;
+        fixedDesc = `${kva} kVA × ₹${t.fixed}`;
+      } else {
+        fixedCharge = t.fixed;
+        fixedDesc = currentLang === 'en' ? `Fixed Charge (₹${t.fixed})` : (currentLang === 'hi' ? `नियत आकार (₹${t.fixed})` : `नियत आकार (₹${t.fixed})`);
+      }
+
+      energyTotal = units * (t.energy || 0);
+      energyDesc = `${qty(units)} units × ₹${t.energy}`;
+      wheelingCharge = units * t.wheel;
+      wheelingDesc = `${qty(units)} units × ₹${t.wheel}`;
+      facCharge = units * (t.facRate !== undefined ? t.facRate : 0.500);
+      facDesc = `${qty(units)} units × ₹${(t.facRate || 0.5).toFixed(2)}`;
+
+      if (t.type.startsWith("comm")) {
+        const commTaxRatePaise = t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94;
+        taxOnSale = Math.floor(units * commTaxRatePaise) / 100;
+        taxDesc = `(${qty(units)} units × ${commTaxRatePaise} ps) ÷ 100`;
+      }
+    }
+
+    dutyBase = fixedCharge + energyTotal + wheelingCharge + facCharge;
+    if (isSolar && solarDayRebate > 0) {
+      dutyBase = Math.max(0, dutyBase - solarDayRebate);
+    }
+    dutyCharge = units > 0 ? (dutyBase * t.duty / 100) : 0;
+
+    currentBillExact = (fixedCharge + energyTotal + wheelingCharge + facCharge) + dutyCharge + taxOnSale + otherAdj;
+    currentBill = currentBillExact; 
+    
+    totalRaw = currentBillExact + arrears;
+    totalPayable = Math.round(totalRaw / 10) * 10;
+  }
+
+  // Surcharges & Discounts Calculations
+  const promptBase = (cat === "ind")
+    ? (fixedCharge + wheelingCharge + energyTotal + todTariff + facCharge)
+    : (fixedCharge + energyTotal + wheelingCharge + facCharge + (otherAdj < 0 ? otherAdj : 0));
+  const promptDiscount = promptBase * 0.01;
+  const digitalDiscount = Math.min(500, promptBase * 0.0025);
+  const delaySurcharge = currentBillExact * 0.0125;
+
+  // Update KPI Cards
+  $("kpiFixed").textContent = money(fixedCharge);
+  $("kpiWheel").textContent = money(wheelingCharge);
+  $("kpiEnergy").textContent = money(energyTotal);
+  $("kpiTod").textContent = money(todTariff);
+  $("kpiFac").textContent = money(facCharge);
+  $("kpiDuty").textContent = money(dutyCharge);
+  $("kpiTax").textContent = money(taxOnSale);
+  $("kpiOther").textContent = (cat === "ind") ? money(debitAdj + otherAdj) : ((otherAdj >= 0 ? "+" : "−") + money(Math.abs(otherAdj)));
+  $("kpiArrears").textContent = (arrears >= 0 ? "+" : "−") + money(Math.abs(arrears));
+
+  $("dispCurrentBill").textContent = money(currentBill);
+  $("dispTotalBill").textContent = money(totalPayable);
+  $("dispRoundNote").textContent = dict.dispRoundNote;
+  $("dispArrearsNote").textContent = `${dict.finalCurrentTitle} (${money(currentBill)}) + ${dict.kpiArrears} (${money(arrears)}) = ${money(totalRaw)} → ${currentLang === 'en' ? 'Round Figure' : (currentLang === 'hi' ? 'पूर्णांक' : 'पूर्णांक रक्कम')}: ${money(totalPayable)}`;
+
+  // Update Discounts Section
+  $("dispPromptDiscount").textContent = "− " + money(promptDiscount);
+  $("dispDigitalDiscount").textContent = "− " + money(digitalDiscount);
+  $("dispDelaySurcharge").textContent = "+ " + money(delaySurcharge);
+
+  // Residential Slabs Table
+  if (cat === "res") {
+    let slabHtml = "";
+    for (const s of energySlabs) {
+      slabHtml += `<tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${qty(s.units)}</td>
+        <td>₹${s.eRate.toFixed(2)}</td>
+        <td>${money(s.amtE)}</td>
+        <td>₹${s.fRate.toFixed(3)}</td>
+        <td>${money(s.amtF)}</td>
+      </tr>`;
+    }
+    $("slabDetailsBody").innerHTML = slabHtml;
+    $("tableTotalEnergy").textContent = money(energyTotal);
+    $("tableTotalFac").textContent = money(facCharge);
+  }
+
+  // Detailed Step Breakdown Rows (Translated in 100% currentLang)
+  let rows = `
+    <tr>
+      <td><strong>${dict.rowDemand}</strong></td>
+      <td>${fixedDesc}</td>
+      <td>${money(fixedCharge)}</td>
+    </tr>
+    <tr>
+      <td><strong>${dict.rowWheel}</strong></td>
+      <td>${wheelingDesc}</td>
+      <td>${money(wheelingCharge)}</td>
+    </tr>
+    <tr>
+      <td><strong>${dict.rowEnergy}</strong></td>
+      <td>${energyDesc}</td>
+      <td>${money(energyTotal)}</td>
+    </tr>`;
+
+  if (cat === "ind") {
+    rows += `
+    <tr>
+      <td><strong>${dict.rowTod}</strong></td>
+      <td>${currentLang === 'en' ? 'Amount specified on bill' : (currentLang === 'hi' ? 'बिल में दर्ज राशि' : 'बिलामध्ये नमूद रक्कम')}</td>
+      <td>${money(todTariff)}</td>
+    </tr>`;
+  }
+
+  rows += `
+    <tr>
+      <td><strong>${cat === 'ind' ? dict.rowFacInd : dict.rowFacGen}</strong></td>
+      <td>${facDesc}</td>
+      <td>${money(facCharge)}</td>
+    </tr>`;
+
+  if (isSolar && solarDayRebate > 0) {
+    rows += `
+    <tr style="color:#15803d;font-weight:700">
+      <td><strong>${dict.rowSolarRebate}</strong></td>
+      <td>${qty(dayUnits)} ${currentLang === 'en' ? 'units' : (currentLang === 'hi' ? 'यूनिट्स' : 'युनिट्स')} × ₹0.85/unit (${currentLang === 'en' ? 'Deducted from duty base' : (currentLang === 'hi' ? 'विद्युत शुल्क आधार से कटौती' : 'वीज शुल्काच्या मूळ रकमेतून वजा')})</td>
+      <td>− ${money(solarDayRebate)}</td>
+    </tr>`;
+  }
+
+  rows += `
+    <tr class="subtotal-row">
+      <td><strong>${dict.rowDutyBase}</strong></td>
+      <td>${isSolar && solarDayRebate > 0 ? (currentLang === 'en' ? 'Fixed + Energy + Wheeling + FAC − Solar Rebate' : (currentLang === 'hi' ? 'निश्चित शुल्क + ऊर्जा शुल्क + व्हीलिंग शुल्क + FAC − सोलर रिबेट' : 'निश्चित शुल्क + ऊर्जा शुल्क + व्हीलिंग शुल्क + FAC − सोलर रिबेट')) : (cat === 'ind' ? 'Demand + Wheeling + Energy + TOD + FAC' : 'Fixed + Energy + Wheeling + FAC')}</td>
+      <td>${money(dutyBase)}</td>
+    </tr>
+    <tr>
+      <td><strong>${cat === 'ind' ? dict.rowDutyInd : dict.rowDutyGen} (${dutyPercent}%)</strong></td>
+      <td>${money(dutyBase)} × ${dutyPercent}%</td>
+      <td>${money(dutyCharge)}</td>
+    </tr>
+    <tr>
+      <td><strong>${cat === 'ind' ? dict.rowTaxInd : dict.rowTaxGen}</strong></td>
+      <td>${taxDesc || (currentLang === 'en' ? 'Not Applicable (₹0.00)' : (currentLang === 'hi' ? 'लागू नहीं (₹0.00)' : 'लागू नाही (₹०.००)'))}</td>
+      <td>${money(taxOnSale)}</td>
+    </tr>`;
+
+  if (isSolar && gridSupportCharge > 0) {
+    rows += `
+    <tr style="color:#b91c1c;font-weight:700">
+      <td><strong>${dict.rowGridSupport} (${solarCategory})</strong></td>
+      <td>${currentLang === 'en' ? `Generated ${qty(genUnits)} units × ₹${gridSupportRate}` : (currentLang === 'hi' ? `उत्पादित ${qty(genUnits)} यूनिट्स × ₹${gridSupportRate}` : `उत्पादित ${qty(genUnits)} युनिट्स × ₹${gridSupportRate}`)}</td>
+      <td>+ ${money(gridSupportCharge)}</td>
+    </tr>`;
+  }
+
+  if (cat === "ind") {
+    rows += `
+    <tr>
+      <td><strong>${dict.rowDebit}</strong></td>
+      <td>${currentLang === 'en' ? 'Amount specified on bill' : (currentLang === 'hi' ? 'बिल में दर्ज राशि' : 'बिलामध्ये नमूद रक्कम')}</td>
+      <td>${money(debitAdj)}</td>
+    </tr>`;
+  }
+
+  if (otherAdj !== 0) {
+    rows += `
+    <tr>
+      <td><strong>${dict.rowOther}</strong></td>
+      <td>${currentLang === 'en' ? 'Other Adjustments & Net Solar Factors' : (currentLang === 'hi' ? 'अन्य समायोजन व सौर ऊर्जा घटक' : 'इतर समायोजन आणि नेट सोलर घटक')}</td>
+      <td>${otherAdj >= 0 ? "+" : "−"}${money(Math.abs(otherAdj))}</td>
+    </tr>`;
+  }
+
+  rows += `
+    <tr class="subtotal-row" style="background:var(--badge-bg);font-weight:700">
+      <td><strong>${dict.rowCurrent}</strong></td>
+      <td>${dict.rowCurrentDesc}</td>
+      <td>${money(currentBill)}</td>
+    </tr>`;
+
+  if (arrears !== 0) {
+    rows += `
+      <tr style="font-weight:700">
+        <td><strong>${dict.rowArrears}</strong></td>
+        <td>${arrears > 0 ? dict.rowArrearsDue : dict.rowArrearsCredit}</td>
+        <td>${arrears > 0 ? "+" : "−"}${money(Math.abs(arrears))}</td>
+      </tr>`;
+  }
+
+  rows += `
+    <tr class="subtotal-row" style="background:#10b981;color:#fff;font-size:15px">
+      <td><strong>${dict.rowTotalPayable}</strong></td>
+      <td>${dict.rowCurrent} (${money(currentBill)}) + ${dict.rowArrears} (${money(arrears)}) = ${money(totalRaw)} → ${currentLang === 'en' ? 'Round Figure' : (currentLang === 'hi' ? 'पूर्णांक' : 'पूर्णांकात')}: <strong>${money(totalPayable)}</strong></td>
+      <td>${money(totalPayable)}</td>
+    </tr>`;
+
+  $("detailedBreakdownBody").innerHTML = rows;
+
+  // ----------------- UNIFORM STEP-BY-STEP FORMULA BOX FOR ALL TARIFFS (100% Translated) -----------------
+  if (cat === "ind") {
+    const titleF = currentLang === 'en' ? "📌 Industrial Bill Calculation Formula:" : (currentLang === 'hi' ? "📌 औद्योगिक बिजली बिल गणना सूत्र:" : "📌 औद्योगिक वीज बिल गणना सूत्र:");
+    $("formulaBox").innerHTML = `
+      <strong>${titleF}</strong><br>
+      • <b>Demand Charges:</b> ${qty(num("billingDemand"))} Demand × ₹${t.demandRate} = <b>${money(fixedCharge)}</b><br>
+      • <b>Wheeling Charges:</b> ${qty(num("kvahUnits"))} kVAh × ₹${t.wheelRate} = <b>${money(wheelingCharge)}</b><br>
+      • <b>Energy Charges:</b> ${qty(num("kvahUnits"))} kVAh × ₹${t.energyRate} = <b>${money(energyTotal)}</b><br>
+      • <b>TOD Tariff EC:</b> <b>${money(todTariff)}</b><br>
+      • <b>F.A.C.:</b> ${qty(num("kvahUnits"))} kVAh × ₹${t.facRate.toFixed(2)} = <b>${money(facCharge)}</b><br>
+      ${isSolar && solarDayRebate > 0 ? `• <b>${dict.rowSolarRebate}:</b> ${qty(dayUnits)} units × ₹0.85 = <b>− ${money(solarDayRebate)}</b><br>` : ''}
+      • <b>Duty Base:</b> (${money(fixedCharge)} + ${money(wheelingCharge)} + ${money(energyTotal)} + ${money(todTariff)} + ${money(facCharge)} ${isSolar && solarDayRebate > 0 ? '− ' + money(solarDayRebate) : ''}) = <b>${money(dutyBase)}</b><br>
+      • <b>Electricity Duty (${t.duty}%):</b> ${money(dutyBase)} × ${t.duty}% = <b>${money(dutyCharge)}</b><br>
+      • <b>Tax on Sale:</b> (${qty(num("kwhUnits"))} kWh × ${t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94} ps) ÷ 100 = <b>${money(taxOnSale)}</b><br>
+      ${isSolar && gridSupportCharge > 0 ? `• <b>${dict.rowGridSupport}:</b> ${qty(genUnits)} gen × ₹${gridSupportRate} = <b>+ ${money(gridSupportCharge)}</b><br>` : ''}
+      • <b>Debit Bill Adjustment:</b> <b>${money(debitAdj)}</b><br>
+      • <b>Current Bill Amount:</b> <b>${money(currentBill)}</b> (${currentLang === 'en' ? 'Excluding Arrears' : (currentLang === 'hi' ? 'बकाया छोड़कर' : 'थकबाकी वगळून')})<br>
+      • <b>Total Payable Bill:</b> ${dict.rowCurrent} (${money(currentBill)}) + ${dict.rowArrears} (${money(arrears)}) = ${money(totalRaw)} → Round Figure (Nearest ₹10): <b>${money(totalPayable)}</b>
+    `;
+  } else if (cat === "res") {
+    const firstLimit = Math.round(100 * ratio);
+    const energyFormulaStr = energySlabs.length > 0 
+      ? energySlabs.map(s => `${s.name} (${qty(s.units)} × ₹${s.eRate.toFixed(2)})`).join(" + ") + ` = <b>${money(energyTotal)}</b>`
+      : `0 units = <b>₹0.00</b>`;
+    const facFormulaStr = energySlabs.length > 0
+      ? energySlabs.map(s => `टियर ${s.name.split(' ')[1] || '१'} (${qty(s.units)} × ₹${s.fRate.toFixed(3)})`).join(" + ") + ` = <b>${money(facCharge)}</b>`
+      : `0 units = <b>₹0.00</b>`;
+
+    const titleF = currentLang === 'en' ? "📌 Residential Bill Calculation Formula:" : (currentLang === 'hi' ? "📌 आवासीय बिजली बिल गणना सूत्र:" : "📌 निवासी वीज बिल गणना सूत्र:");
+
+    $("formulaBox").innerHTML = `
+      <strong>${titleF}</strong><br>
+      ${isSolar ? `• <b>सोलर नेट युनिट्स:</b> ${qty(importUnits)} आयात (import) − ${qty(currentExportUnits)} युनिट्स 'करंट एक्सपोर्ट' (ग्रीडमध्ये दिलेली वीज) = <b>${qty(netBilledUnits)} युनिट्स 'बिल केलेले युनिट्स'</b><br>` : ''}
+      • <b>स्थिर शुल्क (Fixed Charges):</b> ${fixedDesc} = <b>${money(fixedCharge)}</b><br>
+      • <b>व्हीलिंग शुल्क (Wheeling Charges):</b> ${qty(units)} युनिट्स × ₹${t.wheel} = <b>${money(wheelingCharge)}</b><br>
+      • <b>ऊर्जा शुल्क (Energy Charges):</b> ${energyFormulaStr}<br>
+      • <b>एफ.ए.सी. (F.A.C.):</b> ${facFormulaStr}<br>
+      ${isSolar && solarDayRebate > 0 ? `• <b>सोलर डे रिबेट (सकाळी ९ ते संध्याकाळी ६):</b> ${qty(dayUnits)} युनिट्स × ₹0.85 = <b>− ${money(solarDayRebate)}</b> (एकूण रकमेतून वजा)<br>` : ''}
+      • <b>ड्युटी बेस (Duty Base):</b> (${money(fixedCharge)} + ${money(wheelingCharge)} + ${money(energyTotal)} + ${money(facCharge)} ${isSolar && solarDayRebate > 0 ? '− ' + money(solarDayRebate) : ''}) = <b>${money(dutyBase)}</b><br>
+      • <b>वीज शुल्क/कर (Electricity Duty - 16%):</b> ${money(dutyBase)} × 16% = <b>${money(dutyCharge)}</b><br>
+      ${isSolar && gridSupportCharge > 0 ? `• <b>सोलर ग्रिड सपोर्ट (Solar Grid Support):</b> उत्पादित ${qty(genUnits)} युनिट्स × ₹${gridSupportRate} = <b>+ ${money(gridSupportCharge)}</b><br>` : ''}
+      • <b>सध्याच्या बिलाची एकूण रक्कम:</b> <b>${money(currentBill)}</b> (थकीत रकमेव्यतिरिक्त)<br>
+      • <b>एकूण देय बिल:</b> ${dict.rowCurrent} (${money(currentBill)}) + ${dict.rowArrears} (${money(arrears)}) = ${money(totalRaw)} → पूर्णांक (सर्वात जवळच्या ₹१० च्या पटीत): <b>${money(totalPayable)}</b>
+    `;
+  } else {
+    const titleF = currentLang === 'en' ? `📌 ${t.name} Calculation Formula:` : (currentLang === 'hi' ? `📌 ${t.name} बिल गणना सूत्र:` : `📌 बिल गणनेचे सूत्र (${t.name}):`);
+    $("formulaBox").innerHTML = `
+      <strong>${titleF}</strong><br>
+      ${isSolar ? `• <b>Solar Net Units:</b> ${qty(importUnits)} import − ${qty(currentExportUnits)} current export = <b>${qty(netBilledUnits)} billed units</b><br>` : ''}
+      • <b>Fixed / Demand Charges:</b> ${fixedDesc} = <b>${money(fixedCharge)}</b><br>
+      • <b>Wheeling Charges:</b> ${qty(num("units"))} units × ₹${t.wheel} = <b>${money(wheelingCharge)}</b><br>
+      • <b>Energy Charges:</b> ${qty(num("units"))} units × ₹${t.energy} = <b>${money(energyTotal)}</b><br>
+      • <b>F.A.C.:</b> ${qty(num("units"))} units × ₹${(t.facRate || 0.5).toFixed(2)} = <b>${money(facCharge)}</b><br>
+      ${isSolar && solarDayRebate > 0 ? `• <b>Solar Day Rebate (9 AM - 6 PM):</b> ${qty(dayUnits)} units × ₹0.85 = <b>− ${money(solarDayRebate)}</b><br>` : ''}
+      • <b>Duty Base:</b> (${money(fixedCharge)} + ${money(wheelingCharge)} + ${money(energyTotal)} + ${money(facCharge)} ${isSolar && solarDayRebate > 0 ? '− ' + money(solarDayRebate) : ''}) = <b>${money(dutyBase)}</b><br>
+      • <b>Electricity Duty (${t.duty}%):</b> ${money(dutyBase)} × ${t.duty}% = <b>${money(dutyCharge)}</b><br>
+      ${taxOnSale > 0 ? `• <b>Tax on Sale:</b> (${qty(num("units"))} units × ${t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94} ps) ÷ 100 = <b>${money(taxOnSale)}</b><br>` : ''}
+      ${isSolar && gridSupportCharge > 0 ? `• <b>Solar Grid Support:</b> ${qty(genUnits)} gen × ₹${gridSupportRate} = <b>+ ${money(gridSupportCharge)}</b><br>` : ''}
+      • <b>Current Bill Amount:</b> <b>${money(currentBill)}</b> (${currentLang === 'en' ? 'Excluding Arrears' : (currentLang === 'hi' ? 'बकाया छोड़कर' : 'थकबाकी वगळून')})<br>
+      • <b>Total Payable Bill:</b> ${dict.rowCurrent} (${money(currentBill)}) + ${dict.rowArrears} (${money(arrears)}) = ${money(totalRaw)} → Round Figure (Nearest ₹10): <b>${money(totalPayable)}</b>
+    `;
+  }
+
+  return true;
+}
+
+// Populate Rate Inputs for editing (Both Base & FAC rates)
+function populateRatesInputs() {
+  const cat = $("category").value;
+  if (!cat) return;
+  const t = activeRates[cat];
+  let html = "";
+
+  if (cat === "ind") {
+    html = `
+      <div class="input-group">
+        <label>Demand Charges Rate (₹/demand)</label>
+        <input type="number" id="rateDemand" step="0.01" value="${t.demandRate}">
+      </div>
+      <div class="input-group">
+        <label>Wheeling Charges Rate (₹/kVAh)</label>
+        <input type="number" id="rateWheel" step="0.01" value="${t.wheelRate}">
+      </div>
+      <div class="input-group">
+        <label>Energy Charges Rate (₹/kVAh)</label>
+        <input type="number" id="rateEnergy" step="0.01" value="${t.energyRate}">
+      </div>
+      <div class="input-group">
+        <label>Monthly F.A.C. Rate (₹/kVAh)</label>
+        <input type="number" id="rateFac" step="0.01" value="${t.facRate}">
+      </div>
+      <div class="input-group">
+        <label>Electricity Duty (%)</label>
+        <input type="number" id="rateDuty" step="0.01" value="${t.duty}">
+      </div>
+      <div class="input-group">
+        <label>Tax on Sale Rate (Paise/unit)</label>
+        <input type="number" id="rateTax" step="0.01" value="${t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94}">
+      </div>
+    `;
+  } else if (cat === "res") {
+    html = `
+      <div class="input-group"><label>1-Phase Fixed (₹)</label><input type="number" id="rateFix1" value="${t.fixedOnePhase}"></div>
+      <div class="input-group"><label>3-Phase Fixed (₹)</label><input type="number" id="rateFix3" value="${t.fixedThreePhase}"></div>
+      <div class="input-group"><label>Slab 1 Rate (₹)</label><input type="number" id="rateSlab1" step="0.01" value="${t.slab1}"></div>
+      <div class="input-group"><label>Slab 2 Rate (₹)</label><input type="number" id="rateSlab2" step="0.01" value="${t.slab2}"></div>
+      <div class="input-group"><label>Slab 3 Rate (₹)</label><input type="number" id="rateSlab3" step="0.01" value="${t.slab3}"></div>
+      <div class="input-group"><label>Slab 4/5 Rate (₹)</label><input type="number" id="rateSlab4" step="0.01" value="${t.slab4}"></div>
+      <div class="input-group"><label>FAC Tier 1 (0-100) (₹)</label><input type="number" id="rateFac1" step="0.001" value="${t.fac1}"></div>
+      <div class="input-group"><label>FAC Tier 2 (101-300) (₹)</label><input type="number" id="rateFac2" step="0.001" value="${t.fac2}"></div>
+      <div class="input-group"><label>FAC Tier 3 (301-500) (₹)</label><input type="number" id="rateFac3" step="0.001" value="${t.fac3}"></div>
+      <div class="input-group"><label>FAC Tier 4 (>500) (₹)</label><input type="number" id="rateFac4" step="0.001" value="${t.fac4}"></div>
+      <div class="input-group"><label>Wheeling Rate (₹)</label><input type="number" id="rateWheelRes" step="0.01" value="${t.wheel}"></div>
+      <div class="input-group"><label>Duty (%)</label><input type="number" id="rateDutyRes" step="0.01" value="${t.duty}"></div>
+    `;
+  } else if (cat === "bpl") {
+    html = `
+      <div class="input-group"><label>BPL Fixed Charge (₹)</label><input type="number" id="rateFixBpl" value="${t.fixed}"></div>
+      <div class="input-group"><label>BPL Energy Rate (₹)</label><input type="number" id="rateEnergyBpl" step="0.01" value="${t.energy}"></div>
+      <div class="input-group"><label>BPL FAC Rate (₹)</label><input type="number" id="rateFacBpl" step="0.01" value="${t.facRate}"></div>
+      <div class="input-group"><label>Duty (%)</label><input type="number" id="rateDutyBpl" step="0.01" value="${t.duty}"></div>
+    `;
+  } else {
+    html = `
+      <div class="input-group"><label>Fixed Charge (₹)</label><input type="number" id="rateFixGen" value="${t.fixed}"></div>
+      <div class="input-group"><label>Energy Rate (₹)</label><input type="number" id="rateEnergyGen" step="0.01" value="${t.energy || 0}"></div>
+      <div class="input-group"><label>Monthly FAC Rate (₹)</label><input type="number" id="rateFacGen" step="0.01" value="${t.facRate || 0.5}"></div>
+      <div class="input-group"><label>Wheeling Rate (₹)</label><input type="number" id="rateWheelGen" step="0.01" value="${t.wheel}"></div>
+      <div class="input-group"><label>Duty (%)</label><input type="number" id="rateDutyGen" step="0.01" value="${t.duty}"></div>
+      <div class="input-group"><label>Tax on Sale Rate (Paise/unit)</label><input type="number" id="rateTaxComm" step="0.01" value="${t.taxRatePaise !== undefined ? t.taxRatePaise : 28.94}"></div>
+    `;
+  }
+  $("ratesInputGrid").innerHTML = html;
+}
+
+function applyCustomRates() {
+  const cat = $("category").value;
+  if (!cat) return;
+  const t = activeRates[cat];
+
+  if (cat === "ind") {
+    t.demandRate = num("rateDemand");
+    t.wheelRate = num("rateWheel");
+    t.energyRate = num("rateEnergy");
+    t.facRate = num("rateFac");
+    t.duty = num("rateDuty");
+    t.taxRatePaise = num("rateTax");
+  } else if (cat === "res") {
+    t.fixedOnePhase = num("rateFix1");
+    t.fixedThreePhase = num("rateFix3");
+    t.slab1 = num("rateSlab1");
+    t.slab2 = num("rateSlab2");
+    t.slab3 = num("rateSlab3");
+    t.slab4 = num("rateSlab4");
+    t.slab5 = num("rateSlab4");
+    t.fac1 = num("rateFac1");
+    t.fac2 = num("rateFac2");
+    t.fac3 = num("rateFac3");
+    t.fac4 = num("rateFac4");
+    t.wheel = num("rateWheelRes");
+    t.duty = num("rateDutyRes");
+  } else if (cat === "bpl") {
+    t.fixed = num("rateFixBpl");
+    t.energy = num("rateEnergyBpl");
+    t.facRate = num("rateFacBpl");
+    t.duty = num("rateDutyBpl");
+  } else {
+    t.fixed = num("rateFixGen");
+    t.energy = num("rateEnergyGen");
+    t.facRate = num("rateFacGen");
+    t.wheel = num("rateWheelGen");
+    t.duty = num("rateDutyGen");
+    t.taxRatePaise = num("rateTaxComm");
+  }
+
+  calculateBill();
+  showToast(currentLang === 'en' ? "Custom rates saved successfully!" : (currentLang === 'hi' ? "दरें सफलतापूर्वक सहेजी गईं!" : "सर्व दर आणि FAC यशस्वीरीत्या सेव्ह केले आहेत!"));
+}
+
+function toggleEditRatesPanel() {
+  const p = $("editRatesPanel");
+  p.style.display = (p.style.display === "block") ? "none" : "block";
+}
+
+function onCalculateBillClick() {
+  const success = calculateBill();
+  if (success !== false) {
+    const wrapper = $("resultsWrapper");
+    if (!wrapper.classList.contains("show-results")) {
+      wrapper.classList.add("show-results");
+    }
+    wrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// Copy Bill Summary Feature
+function copyBillSummary() {
+  const dict = i18n[currentLang];
+  const cat = $("category").value;
+  if (!cat) {
+    alert(dict.alertSelectCat);
+    return;
+  }
+  const currentBillTxt = $("dispCurrentBill").textContent;
+  const totalBillTxt = $("dispTotalBill").textContent;
+  const arrearsTxt = $("kpiArrears").textContent;
+  const unitsTxt = ($("category").value === 'ind') ? `${$("kvahUnits").value} kVAh / ${$("kwhUnits").value} kWh` : `${$("units").value} Units`;
+
+  const summary = `⚡ ${dict.appTitle}\n` +
+    `• ${dict.category}: ${$("category").options[$("category").selectedIndex].text}\n` +
+    `• ${dict.units}: ${unitsTxt}\n` +
+    `• ${dict.days}: ${$("days").value} Days (Ratio: ${$("billingRatio").value})\n` +
+    `• ${dict.finalCurrentTitle}: ${currentBillTxt}\n` +
+    `• ${dict.kpiArrears}: ${arrearsTxt}\n` +
+    `• ${dict.finalTotalTitle}: ${totalBillTxt}\n` +
+    `---------------------------\n` +
+    `Generated via Mahavitaran Smart Bill Calculator`;
+
+  navigator.clipboard.writeText(summary).then(() => {
+    showToast(currentLang === 'en' ? "Bill summary copied to clipboard!" : (currentLang === 'hi' ? "बिल सारांश क्लिपबोर्ड पर कॉपी हो गया!" : "बिल सारांश यशस्वीरीत्या कॉपी केला आहे!"));
+  }).catch(() => {
+    alert("Copy failed. Please copy manually.");
+  });
+}
+
+function showToast(msg) {
+  const toast = $("toastBox");
+  toast.textContent = msg;
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2500);
+}
+
+// Reset Everything to 0 on top button click (Button strictly named Reset)
+function resetToZero() {
+  $("category").selectedIndex = 0;
+  $("phaseType").selectedIndex = 0;
+  $("area").selectedIndex = 0;
+  $("kvahUnits").value = "0";
+  $("kwhUnits").value = "0";
+  $("units").value = "0";
+  $("days").value = "0";
+  $("billingRatio").value = "0";
+  $("billingDemand").value = "0";
+  $("todTariff").value = "0";
+  $("debitAdjustment").value = "0";
+  $("arrears").value = "0";
+  $("otherAdjustment").value = "0";
+  // Reset Solar Net Meter parameters as well
+  $("isSolar").value = "no";
+  $("solarCategory").value = "LT";
+  $("solarImportUnits").value = "0";
+  $("solarExportUnits").value = "0";
+  $("solarGenUnits").value = "0";
+  $("solarSanctionedLoad").value = "0";
+  $("solarDayUnits").value = "0";
+  $("solarSection").classList.add("hidden");
+  $("solarCard").style.display = "none";
+  $("kpiBoxSolar").style.display = "none";
+  $("resultsWrapper").classList.remove("show-results");
+  updateCategoryVisibility();
+}
+
+function onInputUpdate() {
+  if ($("resultsWrapper").classList.contains("show-results")) {
+    calculateBill();
+  }
+}
+
+["phaseType", "area", "solarCategory"].forEach(id => {
+  $(id).addEventListener("change", onInputUpdate);
+});
+
+["units", "kvahUnits", "kwhUnits", "billingDemand", "todTariff", "debitAdjustment", "arrears", "otherAdjustment", "solarImportUnits", "solarExportUnits", "solarGenUnits", "solarSanctionedLoad", "solarDayUnits"].forEach(id => {
+  $(id).addEventListener("input", onInputUpdate);
+});
+
+// Initial Setup: Show only parameters form; results remain hidden until user clicks Calculate Bill
+updateCategoryVisibility();
+changeLanguage("mr");
+</script>
+</body>
+</html>
